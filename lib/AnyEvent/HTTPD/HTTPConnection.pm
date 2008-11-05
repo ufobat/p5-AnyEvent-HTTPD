@@ -301,7 +301,6 @@ sub write_data {
 
 sub do_disconnect {
    my ($self) = @_;
-   $self->{hdl}->fh->close;
    delete $self->{hdl};
    $self->event ('disconnect');
 }
