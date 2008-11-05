@@ -3,7 +3,6 @@ MANIFEST
 Makefile.PL
 README
 t/00-load.t
-t/pod-coverage.t
 t/pod.t
 lib/AnyEvent/HTTPD/HTTPServer.pm
 lib/AnyEvent/HTTPD/HTTPConnection.pm
