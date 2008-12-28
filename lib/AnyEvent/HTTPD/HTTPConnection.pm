@@ -43,7 +43,8 @@ sub new {
             delete $self->{handles}->{$_[0]}
          },
          on_error => sub {
-            warn "ERROR HANDLE: $_[0]: $!\n";
+            $self->event ('disconnect', "Error: $!");
+            delete $self->{handles}->{$_[0]}
          },
          on_read => sub {
             $self->{rbuf} .= $_[0]->rbuf;
@@ -73,54 +74,15 @@ sub response {
    my $res = "HTTP/1.0 $code $msg\015\012";
    $hdr->{'Expires'} = $hdr->{'Date'} = time2str time;
    $hdr->{'Cache-Control'} = "max-age=0";
-
-   if ($hdr->{'Transfer-Encoding'} eq 'chunked') {
-      $self->{chunked} = 1;
-   }
-
-   if ($self->{chunked}) {
-      $hdr->{'Transfer-Encoding'} = 'chunked';
-   } else {
-      $hdr->{'Content-Length'} = length $content;
-   }
+   $hdr->{'Content-Length'} = length $content;
 
    while (my ($h, $v) = each %$hdr) {
       $res .= "$h: $v\015\012";
    }
    $res .= "\015\012";
-
-   if (!$self->{chunked}) {
-      $res .= $content;
-   }
-   $self->write_data ($res);
-
-   if ($self->{chunked}) {
-      $self->chunk ($content);
-   }
-
-   $self->{hdl}->on_drain (sub {
-      #warn "DRAIN $self->{hdl}\n";
-      $self->do_disconnect;
-   });
-}
-
-sub chunk {
-   my ($self, $chunk, $exts, $is_last) = @_;
-
-   my $len = sprintf "%x", length $chunk;
-   my $chunkdat = $len;
-   if (defined $exts) {
-      for (keys %$exts) {
-         $chunkdat .= ";" . $_ . (defined $exts->{$_} ? "=$exts->{$_}" : "");
-      }
-   }
-   my $chunked_body = $chunkdat . "\015\012" . $chunk . "\015\012";
-   $self->write_data ($chunked_body);
-
-   if ($is_last) {
-      $self->write_data ("0\015\012\015\012");
-      $self->{chunked} = 0;
-   }
+   $res .= $content;
+   $self->{hdl}->push_write ($res);
+   $self->{hdl}->on_drain (sub { $self->do_disconnect; });
 }
 
 sub _unquote {
@@ -236,15 +198,11 @@ sub handle_request {
       }
    }
 
-   #d#require Data::Dumper;
-
    if ($c eq 'multipart/form-data') {
       $cont = $self->decode_multipart ($cont, $bound);
-      #d#warn "DUMP[". Data::Dumper::Dumper ([$cont]). "]\n";
 
    } elsif ($c =~ /x-www-form-urlencoded/) {
       $cont = $self->parse_urlencoded ($cont);
-      #d# warn "DUMP[". Data::Dumper::Dumper ([$cont]). "]\n";
    }
 
    $self->event (request => $method, $uri, $hdr, $cont);
@@ -252,7 +210,6 @@ sub handle_request {
 
 sub handle_data {
    my ($self, $rbuf) = @_;
-   #d# warn "BUF[$$rbuf]\n";
 
    if ($self->{content_len}) {
       if ($self->{content_len} <= length $$rbuf) {
@@ -261,20 +218,21 @@ sub handle_data {
          $self->handle_request (@{delete $self->{last_header}}, $cont);
          delete $self->{content_len};
       }
+
    } else {
       if ($$rbuf =~ s/^
-             (\S+) \040 (\S+) \040 HTTP\/(\d+\.\d+ ) \015\012
+             (\S+) \040 (\S+) \040 HTTP\/(\d+)\.(\d+) \015\012
              ((?:[^\015]+\015\012)* ) \015\012//sx) {
 
-         my ($m, $u, $h) = ($1,$2,$4);
+         my ($m, $u, $vm, $vi, $h) = ($1,$2,$3,$4,$5);
          my $hdr = {};
 
          if ($m ne 'GET' && $m ne 'HEAD' && $m ne 'POST') {
-            $self->error (405, "method not allowed", { Allow => "GET,HEAD" });
+            $self->error (405, "method not allowed", { Allow => "GET,HEAD,POST" });
             return;
          }
 
-         if ($3 >= 2) {
+         if ($vm >= 2) {
             $self->error (506, "http protocol version not supported");
             return;
          }
@@ -293,16 +251,10 @@ sub handle_data {
    }
 }
 
-sub write_data {
-   my ($self, $data) = @_;
-   #warn "WRITE $self->{hdl}\n";
-   $self->{hdl}->push_write ($data);
-}
-
 sub do_disconnect {
-   my ($self) = @_;
+   my ($self, $err) = @_;
    delete $self->{hdl};
-   $self->event ('disconnect');
+   $self->event ('disconnect', $err);
 }
 
 1;

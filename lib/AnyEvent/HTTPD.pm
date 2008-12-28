@@ -74,8 +74,6 @@ L<AnyEvent::HTTPD> even comes with some basic AJAX framework/helper.
 
 =item * ajax helper and javascript output functions in L<AnyEvent::HTTPD::Appgets>
 
-=item * support for chunked encoding output to the HTTP client
-
 =back
 
 =head1 METHODS

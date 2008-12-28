@@ -56,7 +56,7 @@ sub accept_connection {
 
    $htc->reg_cb (disconnect => sub {
       delete $self->{handles}->{$_[0]};
-      $self->event (disconnect => $_[0])
+      $self->event (disconnect => $_[0], $_[1])
    });
 
    $self->event (connect => $htc);
