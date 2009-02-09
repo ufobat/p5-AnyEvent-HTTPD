@@ -98,6 +98,11 @@ sub _unquote {
    $str
 }
 
+
+# FIXME: (or test if this is the case)
+# 09 01:21:32 <schmorp> header der art
+# 09 01:21:40 <schmorp> "   xxx   :bbbb" werden nicht geparsed oder?
+# 09 01:21:56 <schmorp> also,d as istd er header xxx
 sub _parse_headers {
    my ($header) = @_;
    my $hdr;
