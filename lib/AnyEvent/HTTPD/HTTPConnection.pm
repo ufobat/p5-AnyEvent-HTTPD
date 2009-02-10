@@ -40,23 +40,20 @@ sub new {
          fh => $self->{fh},
          on_eof => sub {
             $self->event ('disconnect');
-            delete $self->{handles}->{$_[0]}
+            warn "DISCON2\n";
+            delete $self->{hdl};
          },
          on_error => sub {
             $self->event ('disconnect', "Error: $!");
-            delete $self->{handles}->{$_[0]}
-         },
-         on_read => sub {
-            $self->{rbuf} .= $_[0]->rbuf;
-            $_[0]->rbuf = '';
-            $self->handle_data (\$self->{rbuf});
-            1
+            warn "DISCON\n";
+            delete $self->{hdl};
          }
       );
 
+   $self->push_header_line;
+
    return $self
 }
-
 
 sub error {
    my ($self, $code, $msg, $hdr, $content) = @_;
@@ -72,17 +69,20 @@ sub error {
 sub response {
    my ($self, $code, $msg, $hdr, $content) = @_;
    my $res = "HTTP/1.0 $code $msg\015\012";
-   $hdr->{'Expires'} = $hdr->{'Date'} = time2str time;
-   $hdr->{'Cache-Control'} = "max-age=0";
+   $hdr->{'Expires'}        = $hdr->{'Date'}
+                            = time2str time;
+   $hdr->{'Cache-Control'}  = "max-age=0";
    $hdr->{'Content-Length'} = length $content;
 
    while (my ($h, $v) = each %$hdr) {
       $res .= "$h: $v\015\012";
    }
+
    $res .= "\015\012";
    $res .= $content;
+
    $self->{hdl}->push_write ($res);
-   $self->{hdl}->on_drain (sub { $self->do_disconnect; });
+   $self->{hdl}->on_drain (sub { $self->do_disconnect });
 }
 
 sub _unquote {
@@ -98,36 +98,15 @@ sub _unquote {
    $str
 }
 
-
-# FIXME: (or test if this is the case)
-# 09 01:21:32 <schmorp> header der art
-# 09 01:21:40 <schmorp> "   xxx   :bbbb" werden nicht geparsed oder?
-# 09 01:21:56 <schmorp> also,d as istd er header xxx
-sub _parse_headers {
-   my ($header) = @_;
-   my $hdr;
-
-   while ($header =~ /\G
-      ([^:\000-\040]+) : [\011\040]* 
-         ((?:[^\015\012]+|\015\012[\011\040])* )
-         \015\012
-      /sgx) {
-
-      $hdr->{$1} .= ",$2"
-   }
-   for (keys %$hdr) { $hdr->{$_} = substr $hdr->{$_}, 1; }
-   $hdr
-}
-
 sub decode_part {
    my ($self, $hdr, $cont) = @_;
 
    $hdr = _parse_headers ($hdr);
-   if ($hdr->{'Content-Disposition'} =~ /form-data/) {
-      my ($dat, $name_para) = split /\s*;\s*/, $hdr->{'Content-Disposition'};
+   if ($hdr->{'content-disposition'} =~ /form-data/) {
+      my ($dat, $name_para) = split /\s*;\s*/, $hdr->{'content-disposition'};
       my ($name, $par) = split /\s*=\s*/, $name_para;
       if ($par =~ /^".*"$/) { $par = _unquote ($par) }
-      return ($par, $cont, $hdr->{'Content-Type'});
+      return ($par, $cont, $hdr->{'content-type'});
    }
    ();
 }
@@ -172,13 +151,13 @@ sub decode_multipart {
 
 sub _url_unescape {
    my ($val) = @_;
-   $val =~ s/\+/ /g;
+   $val =~ s/\+/\040/g;
    $val =~ s/%([0-9a-f][0-9a-f])/chr (hex ($1))/eg;
    $val
 }
 
-sub parse_urlencoded {
-   my ($self, $cont) = @_;
+sub _parse_urlencoded {
+   my ($cont) = @_;
    my (@pars) = split /\&/, $cont;
    $cont = {};
 
@@ -195,7 +174,7 @@ sub parse_urlencoded {
 sub handle_request {
    my ($self, $method, $uri, $hdr, $cont) = @_;
 
-   my ($c, @params) = split /\s*;\s*/, $hdr->{'Content-Type'};
+   my ($c, @params) = split /\s*;\s*/, $hdr->{'content-type'};
    my $bound;
    for (@params) {
       if (/^\s*boundary\s*=\s*(.*?)\s*$/) {
@@ -207,32 +186,78 @@ sub handle_request {
       $cont = $self->decode_multipart ($cont, $bound);
 
    } elsif ($c =~ /x-www-form-urlencoded/) {
-      $cont = $self->parse_urlencoded ($cont);
+      $cont = _parse_urlencoded ($cont);
    }
 
    $self->event (request => $method, $uri, $hdr, $cont);
 }
 
-sub handle_data {
-   my ($self, $rbuf) = @_;
+# loosely adopted from AnyEvent::HTTP:
+sub _parse_headers {
+   my ($header) = @_;
+   my $hdr;
 
-   if ($self->{content_len}) {
-      if ($self->{content_len} <= length $$rbuf) {
-         my $cont = substr $$rbuf, 0, $self->{content_len};
-         $$rbuf = substr $$rbuf, $self->{content_len};
-         $self->handle_request (@{delete $self->{last_header}}, $cont);
-         delete $self->{content_len};
+   $header =~ y/\015//d;
+
+   while ($header =~ /\G
+      ([^:\000-\037]+):
+      [\011\040]* 
+      ( (?: [^\012]+ | \012 [\011\040] )* )
+      \012
+   /sgcx) {
+
+      $hdr->{lc $1} .= ",$2"
+   }
+
+   return undef unless $header =~ /\G$/sgx;
+
+   for (keys %$hdr) {
+      substr $hdr->{$_}, 0, 1, '';
+      # remove folding:
+      $hdr->{$_} =~ s/\012([\011\040])/$1/sg;
+   }
+
+   $hdr
+}
+
+sub push_header {
+   my ($self, $hdl) = @_;
+
+   $self->{hdl}->unshift_read (regex =>
+      qr<\015\012\015\012>, undef, qr<^.*[^\015\012]>,
+      sub {
+         my ($hdl, $data) = @_;
+         $data =~ s/\015\012$//s;
+         my $hdr = _parse_headers ($data);
+
+         unless (defined $hdr) {
+            $self->error (599 => "garbled headers");
+         }
+
+         push @{$self->{last_header}}, $hdr;
+
+         if (defined $hdr->{'content-length'}) {
+            $self->{hdl}->unshift_read (chunk => $hdr->{'content-length'}, sub {
+               my ($hdl, $data) = @_;
+               $self->handle_request (@{$self->{last_header}}, $data);
+            });
+         } else {
+            $self->handle_request (@{$self->{last_header}});
+         }
       }
+   );
+}
 
-   } else {
-      if ($$rbuf =~ s/^
-             (\S+) \040 (\S+) \040 HTTP\/(\d+)\.(\d+) \015\012
-             ((?:[^\015]+\015\012)* ) \015\012//sx) {
+sub push_header_line {
+   my ($self) = @_;
 
-         my ($m, $u, $vm, $vi, $h) = ($1,$2,$3,$4,$5);
-         my $hdr = {};
+   $self->{hdl}->push_read (line => sub {
+      my ($hdl, $line) = @_;
 
-         if ($m ne 'GET' && $m ne 'HEAD' && $m ne 'POST') {
+      if ($line =~ /(\S+) \040 (\S+) \040 HTTP\/(\d+)\.(\d+)/xs) {
+         my ($meth, $url, $vm, $vi) = ($1, $2, $3, $4);
+
+         if (not grep { $meth eq $_ } qw/GET HEAD POST/) {
             $self->error (405, "method not allowed", { Allow => "GET,HEAD,POST" });
             return;
          }
@@ -242,24 +267,19 @@ sub handle_data {
             return;
          }
 
-         $hdr = _parse_headers ($h);
+         $self->{last_header} = [$meth, $url];
+         $self->push_header;
 
-         $self->{last_header} = [$m, $u, $hdr];
-
-         if (defined $hdr->{'Content-Length'}) {
-            $self->{content_len} = $hdr->{'Content-Length'};
-            $self->handle_data ($rbuf);
-         } else {
-            $self->handle_request (@{$self->{last_header}});
-         }
+      } else {
+         $self->error (400 => 'bad request');
       }
-   }
+   });
 }
 
 sub do_disconnect {
    my ($self, $err) = @_;
-   delete $self->{hdl};
    $self->event ('disconnect', $err);
+   delete $self->{hdl};
 }
 
 1;
