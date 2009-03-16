@@ -187,6 +187,30 @@ sub parm {
    return undef;
 }
 
+=item B<vars>
+
+Returns a hash of form parameters. The value is either the 
+value of the parameter, and in case there are multiple values
+present it will contain an array reference of values.
+
+=cut
+
+sub vars {
+   my ($self) = @_;
+
+   my $p = $req->{parm};
+
+   my %v = map {
+      my $k = $_;
+      $k =>
+         @{$p->{$k}} > 1
+            ? [ map { $_->[0] } @{$p->{$k}} ]
+            : $p->{$k}->[0]->[0]
+   } keys %$p;
+
+   %v
+}
+
 =item B<content>
 
 Returns the request content or undef if only parameters for a form
