@@ -31,18 +31,20 @@ our $VERSION = '0.04';
        '/' => sub {
           my ($httpd, $req) = @_;
 
-          $req->o ("<html><body><h1>Hello World!</h1>");
-          $req->o ("<a href=\"/test\">another test page</a>");
-          $req->o ("</body></html>");
-          $req->respond;
+          $req->respond ({ content => ['text/html',
+             "<html><body><h1>Hello World!</h1>"
+             . "<a href=\"/test\">another test page</a>"
+             . "</body></html>"
+          ]});
        },
        '/test' => sub {
           my ($httpd, $req) = @_;
 
-          $req->o ("<html><body><h1>Test page</h1>");
-          $req->o ("<a href=\"/\">Back to the main page</a>");
-          $req->o ("</body></html>");
-          $req->respond;
+          $req->respond ({ content => ['text/html',
+             "<html><body><h1>Test page</h1>"
+             . "<a href=\"/\">Back to the main page</a>"
+             . "</body></html>"
+          ]});
        },
     );
 
@@ -62,8 +64,6 @@ The documentation is currently only the source code, but next versions of
 this module will be better documented hopefully. See also the C<samples/> directory
 in the L<AnyEvent::HTTPD> distribution for basic starting points.
 
-L<AnyEvent::HTTPD> even comes with some basic AJAX framework/helper.
-
 =head1 FEATURES
 
 =over 4
@@ -71,8 +71,6 @@ L<AnyEvent::HTTPD> even comes with some basic AJAX framework/helper.
 =item * support for GET and POST requests
 
 =item * processing of C<x-www-form-urlencoded> and C<multipart/form-data> encoded form parameters
-
-=item * ajax helper and javascript output functions in L<AnyEvent::HTTPD::Appgets>
 
 =back
 
@@ -113,8 +111,6 @@ sub new {
    my $class = ref($this) || $this;
    my $self  = $class->SUPER::new (@_);
 
-   $self->start_cleanup;
-
    $self->reg_cb (
       connect => sub {
          my ($self, $con) = @_;
@@ -127,12 +123,14 @@ sub new {
                $url = URI->new ($url);
 
                if ($meth eq 'GET') {
-                  $cont = $con->parse_urlencoded ($url->query);
+                  $cont =
+                     AnyEvent::HTTPD::HTTPConnection::_parse_urlencoded ($url->query);
                }
 
                if ($meth eq 'GET' or $meth eq 'POST') {
 
                   weaken $con;
+
                   $self->handle_app_req ($url, $hdr, $cont, sub {
                      $con->response (@_) if $con;
                   });
@@ -148,52 +146,13 @@ sub new {
       }
    );
 
-   $self->{max_data} 
-      = defined $self->{max_data} ? $self->{max_data} : 10;
-   $self->{cleanup_interval}
-      = defined $self->{cleanup_interval} ? $self->{cleanup_interval} : 60;
    $self->{state} ||= {};
 
    return $self
 }
 
-sub start_cleanup {
-   my ($self) = @_;
-   $self->{clean_tmr} =
-      AnyEvent->timer (after => $self->{cleanup_interval}, cb => sub {
-         $self->cleanup;
-         $self->start_cleanup;
-      });
-}
-
-sub cleanup {
-   my ($self) = @_;
-
-   my $cnt = scalar @{$self->{form_ages} || []};
-
-   if ($cnt > $self->{max_data}) {
-      my $diff = $cnt - $self->{max_data};
-
-      while ($cnt-- > 0) {
-         my $d = pop @{$self->{form_ages} || []};
-         last unless defined $d;
-         delete $self->{form_cbs}->{$d->[1]};
-      }
-   }
-}
-
-sub alloc_id {
-   my ($self, $dest, @args) = @_;
-   $self->{form_id}++;
-   $self->{form_cbs}->{"$self->{form_id}"} = [$dest, \@args];
-   push @{$self->{form_ages}}, [time, $self->{form_id}];
-   $self->{form_id}
-}
-
 sub handle_app_req {
    my ($self, $url, $hdr, $cont, $respcb) = @_;
-
-   weaken $self;
 
    my $req =
       AnyEvent::HTTPD::Request->new (
@@ -204,15 +163,6 @@ sub handle_app_req {
          content => (ref $cont ? undef : $cont),
          resp    => $respcb
       );
-
-   if ($req->is_form_submit) {
-      my $id = $req->form_id;
-      my $cb = $self->{form_cbs}->{"$id"};
-
-      if (ref $cb->[0] eq 'CODE') {
-         $cb->[0]->($req);
-      }
-   }
 
    $self->event ('request' => $req);
 

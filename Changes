@@ -2,6 +2,12 @@ Revision history for AnyEvent-HTTPD
       
         - applied patch from mathieu at closetwork.org to add a
           host parameter for binding.
+        - removed bogus API stuff like ::Appgets or the weird
+          form and response handling. AnyEvent::HTTPD should be and
+          stay a simple HTTP server for simple purposes.
+          If you need further sugar, please write your own modules for
+          it. If you need anything ask me or look in the git repository
+          at http://git.ta-sa.org/AnyEvent-HTTPD.git
 
 0.04 Sun Dec 28 15:48:28 CET 2008
         - removed TCP* classes and using AnyEvent::Handle instead.

@@ -17,7 +17,7 @@ $h->reg_cb (
    '/test' => sub {
       my ($httpd, $req) = @_;
       $req_url2 = $req->url->path;
-      $req->respond ({content => ['text/plain', "Test response"]});
+      $req->respond ({ content => ['text/plain', "Test response"] });
    },
 );
 

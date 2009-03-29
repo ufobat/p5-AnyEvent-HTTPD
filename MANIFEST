@@ -6,13 +6,10 @@ t/00-load.t
 t/pod.t
 lib/AnyEvent/HTTPD/HTTPServer.pm
 lib/AnyEvent/HTTPD/HTTPConnection.pm
-lib/AnyEvent/HTTPD/Appgets.pm
 lib/AnyEvent/HTTPD/Request.pm
 lib/AnyEvent/HTTPD.pm
 samples/simple_example
-samples/ajax_example
 samples/bshttp.png
 samples/second_example
 samples/delayed_example
-samples/capture_example
-samples/more_complex_example
+samples/delayed_2_example

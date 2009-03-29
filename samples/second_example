@@ -4,16 +4,17 @@ use AnyEvent::HTTPD;
 
 my $cvar = AnyEvent->condvar;
 
-my $httpd = AnyEvent::HTTPD->new (port => 9090);
+my $httpd = AnyEvent::HTTPD->new (port => 19090);
 
 $httpd->reg_cb (
    '' => sub {
       my ($httpd, $req) = @_;
 
-      $req->o ("<html><body><h1>Testing return types...</h1>");
-      $req->o ("<img src=\"/image/bshttp.png\" />");
-      $req->o ("</body></html>");
-      $req->respond;
+      $req->respond ({ content => [ 'text/html',
+         "<html><body><h1>Testing return types...</h1>"
+         . "<img src=\"/image/bshttp.png\" />"
+         . "</body></html>"
+      ]});
    },
    '/image/bshttp.png' => sub {
       $_[0]->stop_request;

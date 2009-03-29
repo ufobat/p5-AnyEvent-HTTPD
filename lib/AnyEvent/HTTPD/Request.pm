@@ -38,46 +38,6 @@ sub url {
    $u
 }
 
-sub is_form_submit {
-   my ($self) = @_;
-   defined $self->form_id
-}
-
-sub form_id {
-   my ($self) = @_;
-   my $id = $self->parm ("_APP_SRV_FORM_ID");
-   $id = $self->parm ("_afid") if defined $self->parm ("_afid");
-   $id
-}
-
-=item B<form ($content, $callback)>
-
-This method will create a form for you and bind it to the C<$handler>
-you gave. The content of the form tag can be given by C<$content>, which
-can either be a string or a code reference, which will be called and should
-return the form content.
-
-When the form is submitted the C<$callback> will be called before the submit
-request executes any of your content callbacks. The form ID is transmitted via
-a hidden input element with the name C<_APP_SRV_FORM_ID>, and you should take
-care not to use that form element name yourself.
-
-The C<$callback> will receive as first argument the L<AnyEvent::HTTPD> object.
-
-You can access the transmitted form parameters via the C<parm> method.
-
-=cut
-
-sub form {
-   my ($self, $cont, $cb) = @_;
-   my $id = $self->{httpd}->alloc_id ($cb);
-   my $url = $self->url;
-   '<form action="'.$url.'" method="POST" enctype="multipart/form-data">'
-   .'<input type="hidden" name="_APP_SRV_FORM_ID" value="'.$id.'" />'
-   .(ref $cont ? $cont->() : $cont)
-   .'</form>'
-}
-
 =item B<respond ([$res])>
 
 This method will send a response to the request.
@@ -143,34 +103,15 @@ sub respond {
             $h->{content}->[1]
          ];
       }
-   }
 
+   }
+   
    if (not defined $res) {
-      if ($self->{output} eq '') {
-         $rescb->(404, "ok", { 'Content-Type' => 'text/html' }, "<h1>No content</h1>");
-      } else {
-         $rescb->(200, "ok", { 'Content-Type' => 'text/html' }, $self->{output});
-      }
+      $rescb->(404, "ok", { 'Content-Type' => 'text/html' }, "<h1>No content</h1>");
+
    } else {
       $rescb->(@$res);
    }
-}
-
-=item B<link ($label, $callback, $newurl)>
-
-This method returns a html link which will call C<$callback>
-when the user follows the link. It uses the C<_afid> param name,
-so take care not to use it for other things.
-C<$newurl> should be undef or the new (local) destination url,
-see also the C<url> method above.
-
-=cut
-
-sub link {
-   my ($self, $lbl, $cb, $newurl) = @_;
-   my $id = $self->{httpd}->alloc_id ($cb);
-   unless (defined $newurl) { $newurl = $self->url; }
-   '<a href="'.$newurl.'?_afid='.$id.'">'.$lbl.'</a>';
 }
 
 =item B<parm ($key)>
@@ -198,7 +139,7 @@ present it will contain an array reference of values.
 sub vars {
    my ($self) = @_;
 
-   my $p = $req->{parm};
+   my $p = $self->{parm};
 
    my %v = map {
       my $k = $_;
@@ -222,16 +163,6 @@ sub content {
    my ($self) = @_;
    return $self->{content};
 }
-
-=item B<o ($str)>
-
-This method appends C<$str> to the response output of this request.
-The accumulated output can be sent back as 'text/html' by calling the
-C<respond> method without an argument.
-
-=cut
-
-sub o { shift->{output} .= join '', @_ }
 
 =back
 
