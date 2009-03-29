@@ -36,7 +36,7 @@ sub new {
    my $self  = { @_ };
    bless $self, $class;
 
-   tcp_server undef, $self->{port}, sub {
+   tcp_server $self->{host}, $self->{port}, sub {
       my ($fh) = @_;
       unless ($fh) {
          $self->event (error => "couldn't accept client: $!");

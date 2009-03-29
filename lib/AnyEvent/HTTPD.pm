@@ -95,6 +95,11 @@ The C<%args> hash may contain one of these key/value pairs:
 
 =over 4
 
+=item host => $host
+
+The TCP address of the HTTP server will listen on. Usually 0.0.0.0 (the
+default), for a public server, or 127.0.0.1 for a local server.
+
 =item port => $port
 
 The TCP port the HTTP server will listen on.
