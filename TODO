@@ -1,3 +1,11 @@
 - implement http 1.0
 - test vars method.
 - test AnyEvent::Socket usage
+- 
+11 16:32:14 <melo> Hey, just to say that the AnyEvent::HTTPD works with perl5.8
+11 17:13:58 <melo> AnyEvent::HTTPD tweaks:
+11 17:13:58 <melo> http://github.com/melo/anyevent--httpd/tree/master
+11 17:14:27 <melo> two commits, first just cleans up current tests. Not sure you'll like that o
+                   ne, but I removed the Coro dependency, can't install the damn thing :)
+11 17:14:55 <melo> second one is ok: adds method() method to request, so you can decide if it w
+                   as a GET or a POST
