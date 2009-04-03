@@ -105,13 +105,26 @@ sub respond {
       }
 
    }
-   
+
+   $self->{responded} = 1;
+
    if (not defined $res) {
       $rescb->(404, "ok", { 'Content-Type' => 'text/html' }, "<h1>No content</h1>");
 
    } else {
       $rescb->(@$res);
    }
+}
+
+=item B<responded>
+
+Returns true if this request already has been responded to.
+
+=cut
+
+sub responded {
+   my ($self) = @_;
+   $self->{responded}
 }
 
 =item B<parm ($key)>
