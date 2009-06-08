@@ -9,6 +9,8 @@ Revision history for AnyEvent-HTTPD
           it. If you need anything ask me or look in the git repository
           at http://git.ta-sa.org/AnyEvent-HTTPD.git
         - added responded method to ::Request.
+        - stop_request now also stops further handling of the request
+          after the 'request' event.
 
 0.04 Sun Dec 28 15:48:28 CET 2008
         - removed TCP* classes and using AnyEvent::Handle instead.

@@ -164,7 +164,9 @@ sub handle_app_req {
          resp    => $respcb
       );
 
-   $self->event ('request' => $req);
+   $self->{req_stop} = 0;
+   $self->event (request => $req);
+   return if $self->{req_stop};
 
    my @evs;
    my $cururl = '';
@@ -174,7 +176,6 @@ sub handle_app_req {
       $cururl .= '/';
    }
 
-   $self->{req_stop} = 0;
    for my $ev (reverse @evs) {
       $self->event ($ev => $req);
       last if $self->{req_stop};
@@ -184,7 +185,10 @@ sub handle_app_req {
 =item B<stop_request>
 
 When the server walks the request URI path upwards you can stop
-the walk by calling this method. Example:
+the walk by calling this method. You can even stop further handling
+after the C<request> event.
+
+Example:
 
    $httpd->reg_cb (
       '/test' => sub {
