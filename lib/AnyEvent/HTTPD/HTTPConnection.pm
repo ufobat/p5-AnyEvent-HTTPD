@@ -258,7 +258,8 @@ sub push_header_line {
          my ($meth, $url, $vm, $vi) = ($1, $2, $3, $4);
 
          if (not grep { $meth eq $_ } qw/GET HEAD POST/) {
-            $self->error (405, "method not allowed", { Allow => "GET,HEAD,POST" });
+            $self->error (405, "method not allowed",
+                          { Allow => "GET,HEAD,POST" });
             return;
          }
 
@@ -269,6 +270,11 @@ sub push_header_line {
 
          $self->{last_header} = [$meth, $url];
          $self->push_header;
+
+      } elsif ($line eq '') {
+         # ignore empty lines before requests, this prevents
+         # browser bugs w.r.t. keep-alive (according to marc lehmann).
+         $self->push_header_line;
 
       } else {
          $self->error (400 => 'bad request');
