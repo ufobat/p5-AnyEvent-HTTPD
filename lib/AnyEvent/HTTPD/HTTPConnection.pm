@@ -35,17 +35,18 @@ sub new {
    my $self  = { @_ };
    bless $self, $class;
 
+   $self->{request_timeout} = 60
+      unless defined $self->{request_timeout};
+
    $self->{hdl} =
       AnyEvent::Handle->new (
          fh => $self->{fh},
          on_eof => sub {
             $self->event ('disconnect');
-            warn "DISCON2\n";
             delete $self->{hdl};
          },
          on_error => sub {
             $self->event ('disconnect', "Error: $!");
-            warn "DISCON\n";
             delete $self->{hdl};
          }
       );
@@ -251,8 +252,14 @@ sub push_header {
 sub push_header_line {
    my ($self) = @_;
 
+   $self->{req_timeout} =
+      AnyEvent->timer (after => $self->{request_timeout}, cb => sub {
+         $self->do_disconnect ("request timeout ($self->{request_timeout})");
+      });
+
    $self->{hdl}->push_read (line => sub {
       my ($hdl, $line) = @_;
+      delete $self->{req_timeout};
 
       if ($line =~ /(\S+) \040 (\S+) \040 HTTP\/(\d+)\.(\d+)/xs) {
          my ($meth, $url, $vm, $vi) = ($1, $2, $3, $4);

@@ -4,10 +4,9 @@ no warnings;
 
 use Scalar::Util qw/weaken/;
 use URI;
-use AnyEvent::HTTPD::HTTPServer;
 use AnyEvent::HTTPD::Request;
 
-our @ISA = qw/AnyEvent::HTTPD::HTTPServer/;
+use base qw/AnyEvent::HTTPD::HTTPServer/;
 
 =head1 NAME
 
@@ -57,11 +56,11 @@ interfaces. It's completly event based and independend from any event loop
 by using the L<AnyEvent> module.
 
 It's HTTP implementation is a bit hacky, so before using this module make sure
-it works for you and the expected deployment. Feel free to improve the HTTP support
-and send in patches!
+it works for you and the expected deployment. Feel free to improve the HTTP
+support and send in patches!
 
-The documentation is currently only the source code, but next versions of
-this module will be better documented hopefully. See also the C<samples/> directory
+The documentation is currently only the source code, but next versions of this
+module will be better documented hopefully. See also the C<samples/> directory
 in the L<AnyEvent::HTTPD> distribution for basic starting points.
 
 =head1 FEATURES
@@ -76,11 +75,12 @@ in the L<AnyEvent::HTTPD> distribution for basic starting points.
 
 =head1 METHODS
 
-The L<AnyEvent::HTTPD> class inherits directly from L<AnyEvent::HTTPD::HTTPServer>
-which inherits the event callback interface from L<Object::Event>.
+The L<AnyEvent::HTTPD> class inherits directly from
+L<AnyEvent::HTTPD::HTTPServer> which inherits the event callback interface from
+L<Object::Event>.
 
-Event callbacks can be registered via the L<Object::Event> API (see the documentation
-of L<Object::Event> for details).
+Event callbacks can be registered via the L<Object::Event> API (see the
+documentation of L<Object::Event> for details).
 
 For a list of available events see below in the I<EVENTS> section.
 
@@ -101,6 +101,11 @@ default), for a public server, or 127.0.0.1 for a local server.
 =item port => $port
 
 The TCP port the HTTP server will listen on.
+
+=item request_timeout => $seconds
+
+This will set the request timeout for connections.
+The default value is 60 seconds.
 
 =back
 
@@ -266,13 +271,13 @@ Here is an example how to register an event for the example URL above:
 
 See also C<stop_request> about stopping the walk of the path segments.
 
-The first argument to such a callback is always the L<AnyEvent::HTTPD> object itself.
-The second argument (C<$req>) is the L<AnyEvent::HTTPD::Request> object for this
-request. It can be used to get the (possible) form parameters for this
-request or the transmitted content and respond to the request.
+The first argument to such a callback is always the L<AnyEvent::HTTPD> object
+itself.  The second argument (C<$req>) is the L<AnyEvent::HTTPD::Request>
+object for this request. It can be used to get the (possible) form parameters
+for this request or the transmitted content and respond to the request.
 
-Also every request also emits the C<request> event, with the same arguments and semantics,
-you can use this to implement your own request multiplexing.
+Also every request also emits the C<request> event, with the same arguments and
+semantics, you can use this to implement your own request multiplexing.
 
 =head1 CACHING
 
@@ -288,9 +293,11 @@ Robin Redeker, C<< <elmex at ta-sa.org> >>
 
 =head1 BUGS
 
-Please report any bugs or feature requests to C<bug-bs-httpd at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=AnyEvent-HTTPD>.  I will be notified, and then you'll
-automatically be notified of progress on your bug as I make changes.
+Please report any bugs or feature requests to C<bug-bs-httpd at rt.cpan.org>,
+or through the web interface at
+L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=AnyEvent-HTTPD>.  I will be
+notified, and then you'll automatically be notified of progress on your bug as
+I make changes.
 
 =head1 SUPPORT
 
