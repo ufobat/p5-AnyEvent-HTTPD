@@ -74,6 +74,7 @@ sub response {
                             = time2str time;
    $hdr->{'Cache-Control'}  = "max-age=0";
    $hdr->{'Content-Length'} = length $content;
+   $hdr->{'Connection'}     = $self->{keep_alive} ? 'Keep-Alive' : 'close';
 
    while (my ($h, $v) = each %$hdr) {
       $res .= "$h: $v\015\012";
@@ -83,7 +84,13 @@ sub response {
    $res .= $content;
 
    $self->{hdl}->push_write ($res);
-   $self->{hdl}->on_drain (sub { $self->do_disconnect });
+
+   if ($self->{keep_alive}) {
+      $self->push_header_line;
+
+   } else {
+      $self->{hdl}->on_drain (sub { $self->do_disconnect });
+   }
 }
 
 sub _unquote {
@@ -175,6 +182,8 @@ sub _parse_urlencoded {
 sub handle_request {
    my ($self, $method, $uri, $hdr, $cont) = @_;
 
+   $self->{keep_alive} = ($hdr->{connection} =~ /keep-alive/i);
+
    my ($c, @params) = split /\s*;\s*/, $hdr->{'content-type'};
    my $bound;
    for (@params) {
@@ -225,10 +234,10 @@ sub push_header {
    my ($self, $hdl) = @_;
 
    $self->{hdl}->unshift_read (regex =>
-      qr<\015\012\015\012>, undef, qr<^.*[^\015\012]>,
+      qr<\015?\012\015?\012>, undef, qr<^.*[^\015\012]>,
       sub {
          my ($hdl, $data) = @_;
-         $data =~ s/\015\012$//s;
+         $data =~ s/\015?\012$//s;
          my $hdr = _parse_headers ($data);
 
          unless (defined $hdr) {
@@ -291,6 +300,8 @@ sub push_header_line {
 
 sub do_disconnect {
    my ($self, $err) = @_;
+
+   delete $self->{req_timeout};
    $self->event ('disconnect', $err);
    delete $self->{hdl};
 }

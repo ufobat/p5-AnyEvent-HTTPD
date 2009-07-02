@@ -332,9 +332,9 @@ L<http://search.cpan.org/dist/AnyEvent-HTTPD>
 
 =back
 
-
 =head1 ACKNOWLEDGEMENTS
 
+   Andrey Smirnov - for keep-alive patches.
 
 =head1 COPYRIGHT & LICENSE
 

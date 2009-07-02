@@ -4,7 +4,7 @@ use AnyEvent::HTTPD;
 
 my $cvar = AnyEvent->condvar;
 
-my $httpd = AnyEvent::HTTPD->new (port => 19090);
+my $httpd = AnyEvent::HTTPD->new (port => 19090, request_timeout => 2);
 
 my $timer;
 $httpd->reg_cb (

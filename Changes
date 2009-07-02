@@ -1,5 +1,5 @@
 Revision history for AnyEvent-HTTPD
-      
+
 0.05
         - applied patch from mathieu at closetwork.org to add a
           host parameter for binding.
@@ -12,6 +12,8 @@ Revision history for AnyEvent-HTTPD
         - added responded method to ::Request.
         - stop_request now also stops further handling of the request
           after the 'request' event.
+        - added 'request_timeout's
+        - added keep-alive support (for HTTP 1.0) (thanks to Andrey Smirnov).
 
 0.04 Sun Dec 28 15:48:28 CET 2008
         - removed TCP* classes and using AnyEvent::Handle instead.
@@ -22,14 +24,15 @@ Revision history for AnyEvent-HTTPD
         - removed Perl 5.10 dependency.
 
 0.03 Tue Apr 15 12:57:10 CEST 2008
-        - added submit() function to Appgets
-        - fixed a bug in the url() method of AnyEvent::HTTPD::Request where the
-          url wasn't get correctly. resulting in bad form behaviour.
+        - added submit() function to Appgets.
+        - fixed a bug in the url() method of AnyEvent::HTTPD::Request where
+          the url wasn't get correctly. resulting in bad form behaviour.
 
 0.02 Sat Mar 22 16:09:55 CET 2008
-	- rewrote the module API to be more "async"
-	- made it possible to respond to requests asynchronously in C<AnyEvent::HTTPD>.
-	- added lots of example scripts
+        - rewrote the module API to be more "async".
+        - made it possible to respond to requests asynchronously
+          in C<AnyEvent::HTTPD>.
+        - added lots of example scripts.
 
 0.01 Thu Mar 20 19:53:31 CET 2008
-	- first release
+        - first release.
