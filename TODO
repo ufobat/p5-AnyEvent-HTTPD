@@ -1,6 +1,7 @@
 - implement http 1.0
 - test vars method.
 - test AnyEvent::Socket usage
+- implement maximum connection count.
 - 
 11 16:32:14 <melo> Hey, just to say that the AnyEvent::HTTPD works with perl5.8
 11 17:13:58 <melo> AnyEvent::HTTPD tweaks:
