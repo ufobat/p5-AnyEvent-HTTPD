@@ -1,6 +1,6 @@
 Revision history for AnyEvent-HTTPD
 
-0.05
+0.5 Thu Jul  2 04:30:14 CEST 2009
         - applied patch from mathieu at closetwork.org to add a
           host parameter for binding.
         - removed bogus API stuff like ::Appgets or the weird
