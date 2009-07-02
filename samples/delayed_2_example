@@ -1,7 +1,6 @@
 #!/opt/perl/bin/perl
 use strict;
 use AnyEvent::HTTPD;
-use AnyEvent::HTTPD::Appgets;
 
 my $httpd = AnyEvent::HTTPD->new (port => 19090);
 
