@@ -336,6 +336,7 @@ L<http://search.cpan.org/dist/AnyEvent-HTTPD>
 =head1 ACKNOWLEDGEMENTS
 
    Andrey Smirnov - for keep-alive patches.
+   Pedro Melo     - for valuable input in general and patches.
 
 =head1 COPYRIGHT & LICENSE
 
