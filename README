@@ -48,10 +48,12 @@ DESCRIPTION
     starting points.
 
 FEATURES
-    *   support for GET and POST requests
+    *   support for GET and POST requests.
+
+    *   support for HTTP 1.0 keep-alive.
 
     *   processing of "x-www-form-urlencoded" and "multipart/form-data"
-        encoded form parameters
+        ("multipart/mixed") encoded form parameters.
 
 METHODS
     The AnyEvent::HTTPD class inherits directly from
@@ -196,6 +198,7 @@ SUPPORT
 
 ACKNOWLEDGEMENTS
        Andrey Smirnov - for keep-alive patches.
+       Pedro Melo     - for valuable input in general and patches.
 
 COPYRIGHT & LICENSE
     Copyright 2008 Robin Redeker, all rights reserved.

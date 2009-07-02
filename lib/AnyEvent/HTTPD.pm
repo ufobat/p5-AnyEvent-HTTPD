@@ -67,9 +67,11 @@ in the L<AnyEvent::HTTPD> distribution for basic starting points.
 
 =over 4
 
-=item * support for GET and POST requests
+=item * support for GET and POST requests.
 
-=item * processing of C<x-www-form-urlencoded> and C<multipart/form-data> encoded form parameters
+=item * support for HTTP 1.0 keep-alive.
+
+=item * processing of C<x-www-form-urlencoded> and C<multipart/form-data> (C<multipart/mixed>) encoded form parameters.
 
 =back
 
