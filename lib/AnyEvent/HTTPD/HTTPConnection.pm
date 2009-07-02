@@ -110,12 +110,37 @@ sub decode_part {
    my ($self, $hdr, $cont) = @_;
 
    $hdr = _parse_headers ($hdr);
-   if ($hdr->{'content-disposition'} =~ /form-data/) {
-      my ($dat, $name_para) = split /\s*;\s*/, $hdr->{'content-disposition'};
-      my ($name, $par) = split /\s*=\s*/, $name_para;
-      if ($par =~ /^".*"$/) { $par = _unquote ($par) }
-      return ($par, $cont, $hdr->{'content-type'});
+   if ($hdr->{'content-disposition'} =~ /form-data|attachment/) {
+      my ($dat, @pars) = split /\s*;\s*/, $hdr->{'content-disposition'};
+      my @params;
+
+      my %p;
+
+      my @res;
+
+      for my $name_para (@pars) {
+         my ($name, $par) = split /\s*=\s*/, $name_para;
+         if ($par =~ /^".*"$/) { $par = _unquote ($par) }
+         $p{$name} = $par;
+      }
+
+      my ($ctype, $bound) = _content_type_boundary ($hdr->{'content-type'});
+
+      if ($ctype eq 'multipart/mixed') {
+         my $parts = $self->decode_multipart ($cont, $bound);
+         for my $sp (keys %$parts) {
+            for (@{$parts->{$sp}}) {
+               push @res, [$p{name}, @$_];
+            }
+         }
+
+      } else {
+         push @res, [$p{name}, $cont, $hdr->{'content-type'}, $p{filename}];
+      }
+
+      return @res
    }
+
    ();
 }
 
@@ -125,19 +150,22 @@ sub decode_multipart {
    my $parts = {};
 
    while ($cont =~ s/
-      ^--\Q$boundary\E              \015\012
-      ((?:[^\015\012]+\015\012)* ) \015\012
-      (.*?) \015\012
-      (--\Q$boundary\E (--)?  \015\012)
+      ^--\Q$boundary\E             \015?\012
+      ((?:[^\015\012]+\015\012)* ) \015?\012
+      (.*?)                        \015?\012
+      (--\Q$boundary\E (--)?       \015?\012)
       /\3/xs) {
-      my ($h, $c, $e) = ($1, $2, $3);
+      my ($h, $c, $e) = ($1, $2, $4);
 
       if (my (@p) = $self->decode_part ($h, $c)) {
-         push @{$parts->{$p[0]}}, [$p[1], $p[2], $p[3]];
+         for my $part (@p) {
+            push @{$parts->{$part->[0]}}, [$part->[1], $part->[2], $part->[3]];
+         }
       }
 
       last if $e eq '--';
    }
+
    return $parts;
 }
 
@@ -160,7 +188,7 @@ sub decode_multipart {
 sub _url_unescape {
    my ($val) = @_;
    $val =~ s/\+/\040/g;
-   $val =~ s/%([0-9a-f][0-9a-f])/chr (hex ($1))/eg;
+   $val =~ s/%([0-9a-fA-F][0-9a-fA-F])/chr (hex ($1))/eg;
    $val
 }
 
@@ -179,23 +207,29 @@ sub _parse_urlencoded {
    $cont
 }
 
-sub handle_request {
-   my ($self, $method, $uri, $hdr, $cont) = @_;
-
-   $self->{keep_alive} = ($hdr->{connection} =~ /keep-alive/i);
-
-   my ($c, @params) = split /\s*;\s*/, $hdr->{'content-type'};
+sub _content_type_boundary {
+   my ($ctype) = @_;
+   my ($c, @params) = split /\s*[;,]\s*/, $ctype;
    my $bound;
    for (@params) {
       if (/^\s*boundary\s*=\s*(.*?)\s*$/) {
          $bound = _unquote ($1);
       }
    }
+   ($c, $bound)
+}
 
-   if ($c eq 'multipart/form-data') {
+sub handle_request {
+   my ($self, $method, $uri, $hdr, $cont) = @_;
+
+   $self->{keep_alive} = ($hdr->{connection} =~ /keep-alive/i);
+
+   my ($ctype, $bound) = _content_type_boundary ($hdr->{'content-type'});
+
+   if ($ctype eq 'multipart/form-data') {
       $cont = $self->decode_multipart ($cont, $bound);
 
-   } elsif ($c =~ /x-www-form-urlencoded/) {
+   } elsif ($ctype =~ /x-www-form-urlencoded/) {
       $cont = _parse_urlencoded ($cont);
    }
 
@@ -211,7 +245,7 @@ sub _parse_headers {
 
    while ($header =~ /\G
       ([^:\000-\037]+):
-      [\011\040]* 
+      [\011\040]*
       ( (?: [^\012]+ | \012 [\011\040] )* )
       \012
    /sgcx) {

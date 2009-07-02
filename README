@@ -3,7 +3,7 @@ NAME
     server
 
 VERSION
-    Version 0.04
+    Version 0.05
 
 SYNOPSIS
         use AnyEvent::HTTPD;
@@ -14,18 +14,20 @@ SYNOPSIS
            '/' => sub {
               my ($httpd, $req) = @_;
 
-              $req->o ("<html><body><h1>Hello World!</h1>");
-              $req->o ("<a href=\"/test\">another test page</a>");
-              $req->o ("</body></html>");
-              $req->respond;
+              $req->respond ({ content => ['text/html',
+                 "<html><body><h1>Hello World!</h1>"
+                 . "<a href=\"/test\">another test page</a>"
+                 . "</body></html>"
+              ]});
            },
            '/test' => sub {
               my ($httpd, $req) = @_;
 
-              $req->o ("<html><body><h1>Test page</h1>");
-              $req->o ("<a href=\"/\">Back to the main page</a>");
-              $req->o ("</body></html>");
-              $req->respond;
+              $req->respond ({ content => ['text/html',
+                 "<html><body><h1>Test page</h1>"
+                 . "<a href=\"/\">Back to the main page</a>"
+                 . "</body></html>"
+              ]});
            },
         );
 
@@ -45,16 +47,11 @@ DESCRIPTION
     "samples/" directory in the AnyEvent::HTTPD distribution for basic
     starting points.
 
-    AnyEvent::HTTPD even comes with some basic AJAX framework/helper.
-
 FEATURES
     *   support for GET and POST requests
 
     *   processing of "x-www-form-urlencoded" and "multipart/form-data"
         encoded form parameters
-
-    *   ajax helper and javascript output functions in
-        AnyEvent::HTTPD::Appgets
 
 METHODS
     The AnyEvent::HTTPD class inherits directly from
@@ -70,12 +67,24 @@ METHODS
         This is the constructor for a AnyEvent::HTTPD object. The %args hash
         may contain one of these key/value pairs:
 
+        host => $host
+            The TCP address of the HTTP server will listen on. Usually
+            0.0.0.0 (the default), for a public server, or 127.0.0.1 for a
+            local server.
+
         port => $port
             The TCP port the HTTP server will listen on.
 
+        request_timeout => $seconds
+            This will set the request timeout for connections. The default
+            value is 60 seconds.
+
     stop_request
         When the server walks the request URI path upwards you can stop the
-        walk by calling this method. Example:
+        walk by calling this method. You can even stop further handling
+        after the "request" event.
+
+        Example:
 
            $httpd->reg_cb (
               '/test' => sub {
@@ -165,6 +174,10 @@ SUPPORT
 
     You can also look for information at:
 
+    *   Git repository
+
+        <http://git.ta-sa.org/AnyEvent-HTTPD.git>
+
     *   RT: CPAN's request tracker
 
         <http://rt.cpan.org/NoAuth/Bugs.html?Dist=AnyEvent-HTTPD>
@@ -182,6 +195,8 @@ SUPPORT
         <http://search.cpan.org/dist/AnyEvent-HTTPD>
 
 ACKNOWLEDGEMENTS
+       Andrey Smirnov - for keep-alive patches.
+
 COPYRIGHT & LICENSE
     Copyright 2008 Robin Redeker, all rights reserved.
 

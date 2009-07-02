@@ -1,6 +1,6 @@
 #!perl
 use strict;
-use Test::More tests => 3;
+use Test::More tests => 4;
 use Coro;
 use AnyEvent::HTTPD;
 
@@ -8,6 +8,7 @@ my $h = AnyEvent::HTTPD->new (port => 19090);
 
 my $req_url;
 my $req_url2;
+my $req_method;
 
 $h->reg_cb (
    '' => sub {
@@ -17,6 +18,7 @@ $h->reg_cb (
    '/test' => sub {
       my ($httpd, $req) = @_;
       $req_url2 = $req->url->path;
+      $req_method = $req->method;
       $req->respond ({ content => ['text/plain', "Test response"] });
    },
 );
@@ -42,4 +44,5 @@ $h->run;
 
 is ($req_url, "/test", "the path of the request URL was ok");
 is ($req_url2, "/test", "the path of the second request URL was ok");
+is ($req_method, 'GET', 'Correct method used');
 is (`cat /tmp/anyevent_httpd_test`, 'Test response', "the response text was ok");

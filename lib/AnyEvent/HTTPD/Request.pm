@@ -122,10 +122,7 @@ Returns true if this request already has been responded to.
 
 =cut
 
-sub responded {
-   my ($self) = @_;
-   $self->{responded}
-}
+sub responded { $_[0]->{responded} }
 
 =item B<parm ($key)>
 
@@ -135,11 +132,21 @@ Returns the first value of the form parameter C<$key> or undef.
 
 sub parm {
    my ($self, $key) = @_;
+
    if (exists $self->{parm}->{$key}) {
       return $self->{parm}->{$key}->[0]->[0]
    }
+
    return undef;
 }
+
+=item B<params>
+
+Returns list of parameter names.
+
+=cut
+
+sub params { keys %{$_[0]->{parm} || {}} }
 
 =item B<vars>
 
@@ -165,6 +172,14 @@ sub vars {
    %v
 }
 
+=item B<method>
+
+This method returns the method of the current request.
+
+=cut
+
+sub method { $_[0]{method} }
+
 =item B<content>
 
 Returns the request content or undef if only parameters for a form
@@ -172,10 +187,7 @@ were transmitted.
 
 =cut
 
-sub content {
-   my ($self) = @_;
-   return $self->{content};
-}
+sub content { $_[0]->{content} }
 
 =back
 
