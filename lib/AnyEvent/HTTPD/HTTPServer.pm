@@ -2,6 +2,7 @@ package AnyEvent::HTTPD::HTTPServer;
 use strict;
 no warnings;
 
+use Scalar::Util qw/weaken/;
 use Object::Event;
 use AnyEvent::Handle;
 use AnyEvent::Socket;
@@ -36,14 +37,19 @@ sub new {
    my $self  = { @_ };
    bless $self, $class;
 
-   tcp_server $self->{host}, $self->{port}, sub {
-      my ($fh) = @_;
-      unless ($fh) {
-         $self->event (error => "couldn't accept client: $!");
-         return;
-      }
-      $self->accept_connection ($fh);
-   };
+   my $rself = $self;
+
+   weaken $self;
+
+   $self->{srv} =
+      tcp_server $self->{host}, $self->{port}, sub {
+         my ($fh) = @_;
+         unless ($fh) {
+            $self->event (error => "couldn't accept client: $!");
+            return;
+         }
+         $self->accept_connection ($fh);
+      };
 
    return $self
 }
@@ -58,9 +64,13 @@ sub accept_connection {
 
    $self->{handles}->{$htc} = $htc;
 
+   weaken $self;
+
    $htc->reg_cb (disconnect => sub {
-      delete $self->{handles}->{$_[0]};
-      $self->event (disconnect => $_[0], $_[1])
+      if (defined $self) {
+         delete $self->{handles}->{$_[0]};
+         $self->event (disconnect => $_[0], $_[1]);
+      }
    });
 
    $self->event (connect => $htc);

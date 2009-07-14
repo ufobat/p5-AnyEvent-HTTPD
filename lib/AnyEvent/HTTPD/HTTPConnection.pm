@@ -6,6 +6,7 @@ use Object::Event;
 use strict;
 no warnings;
 
+use Scalar::Util qw/weaken/;
 our @ISA = qw/Object::Event/;
 
 =head1 NAME
@@ -40,15 +41,9 @@ sub new {
 
    $self->{hdl} =
       AnyEvent::Handle->new (
-         fh => $self->{fh},
-         on_eof => sub {
-            $self->event ('disconnect');
-            delete $self->{hdl};
-         },
-         on_error => sub {
-            $self->event ('disconnect', "Error: $!");
-            delete $self->{hdl};
-         }
+         fh       => $self->{fh},
+         on_eof   => sub { $self->do_disconnect },
+         on_error => sub { $self->do_disconnect ("Error: $!") }
       );
 
    $self->push_header_line;
@@ -295,13 +290,19 @@ sub push_header {
 sub push_header_line {
    my ($self) = @_;
 
+   weaken $self;
+
    $self->{req_timeout} =
       AnyEvent->timer (after => $self->{request_timeout}, cb => sub {
+         return unless defined $self;
+
          $self->do_disconnect ("request timeout ($self->{request_timeout})");
       });
 
    $self->{hdl}->push_read (line => sub {
       my ($hdl, $line) = @_;
+      return unless defined $self;
+
       delete $self->{req_timeout};
 
       if ($line =~ /(\S+) \040 (\S+) \040 HTTP\/(\d+)\.(\d+)/xs) {

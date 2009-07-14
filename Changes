@@ -1,5 +1,8 @@
 Revision history for AnyEvent-HTTPD
 
+0.6 Tue Jul 14 11:16:44 CEST 2009
+        - fixed leaking AE::HTTPD::HTTPConnection.
+
 0.5 Thu Jul  2 04:30:14 CEST 2009
         - applied patch from mathieu at closetwork.org to add a
           host parameter for binding.

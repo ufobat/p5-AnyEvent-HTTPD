@@ -14,11 +14,11 @@ AnyEvent::HTTPD - A simple lightweight event based web (application) server
 
 =head1 VERSION
 
-Version 0.5
+Version 0.6
 
 =cut
 
-our $VERSION = '0.5';
+our $VERSION = '0.6';
 
 =head1 SYNOPSIS
 
@@ -121,6 +121,8 @@ sub new {
    $self->reg_cb (
       connect => sub {
          my ($self, $con) = @_;
+
+         weaken $self;
 
          $self->{conns}->{$con} = $con->reg_cb (
             request => sub {
