@@ -1,5 +1,7 @@
 Revision history for AnyEvent-HTTPD
 
+        - fixed documentation in AE::HTTP::Request.
+
 0.6 Tue Jul 14 11:16:44 CEST 2009
         - fixed leaking AE::HTTPD::HTTPConnection.
 
