@@ -14,11 +14,11 @@ AnyEvent::HTTPD - A simple lightweight event based web (application) server
 
 =head1 VERSION
 
-Version 0.6
+Version 0.7
 
 =cut
 
-our $VERSION = '0.6';
+our $VERSION = '0.7';
 
 =head1 SYNOPSIS
 
@@ -72,6 +72,8 @@ in the L<AnyEvent::HTTPD> distribution for basic starting points.
 =item * support for HTTP 1.0 keep-alive.
 
 =item * processing of C<x-www-form-urlencoded> and C<multipart/form-data> (C<multipart/mixed>) encoded form parameters.
+
+=item * support for streaming responses.
 
 =back
 

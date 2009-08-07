@@ -62,29 +62,78 @@ sub error {
    $self->response ($code, $msg, $hdr, $content);
 }
 
-sub response {
-   my ($self, $code, $msg, $hdr, $content) = @_;
-   my $res = "HTTP/1.0 $code $msg\015\012";
-   $hdr->{'Expires'}        = $hdr->{'Date'}
-                            = time2str time;
-   $hdr->{'Cache-Control'}  = "max-age=0";
-   $hdr->{'Content-Length'} = length $content;
-   $hdr->{'Connection'}     = $self->{keep_alive} ? 'Keep-Alive' : 'close';
+sub response_done {
+   my ($self) = @_;
 
-   while (my ($h, $v) = each %$hdr) {
-      $res .= "$h: $v\015\012";
-   }
-
-   $res .= "\015\012";
-   $res .= $content;
-
-   $self->{hdl}->push_write ($res);
+   $self->{hdl}->on_drain; # clear any drain handlers
+   (delete $self->{transfer_cb})->() if $self->{transfer_cb};
 
    if ($self->{keep_alive}) {
       $self->push_header_line;
 
    } else {
       $self->{hdl}->on_drain (sub { $self->do_disconnect });
+   }
+}
+
+sub response {
+   my ($self, $code, $msg, $hdr, $content) = @_;
+   my $res = "HTTP/1.0 $code $msg\015\012";
+   $hdr->{'Expires'}        = $hdr->{'Date'}
+                            = time2str time;
+   $hdr->{'Cache-Control'}  = "max-age=0";
+   $hdr->{'Connection'}     = $self->{keep_alive} ? 'Keep-Alive' : 'close';
+
+   $hdr->{'Content-Length'} = length $content
+      if not (defined $hdr->{'Content-Length'}) && not ref $content;
+
+   unless (defined $hdr->{'Content-Length'}) {
+      # keep alive with no content length will NOT work.
+      delete $self->{keep_alive};
+   }
+
+   while (my ($h, $v) = each %$hdr) {
+      $res .= "$h: $v\015\012";
+   }
+
+   $res .= "\015\012";
+
+   if (ref ($content) eq 'CODE') {
+      weaken $self;
+
+      my $chunk_cb = sub {
+         my ($chunk) = @_;
+
+         return 0 unless defined ($self) && defined ($self->{hdl});
+
+         delete $self->{transport_polled};
+
+         if (defined $chunk) {
+            $self->{hdl}->push_write ($chunk);
+
+         } else {
+            $self->response_done;
+         }
+
+         return 1;
+      };
+
+      $self->{transfer_cb} = $content;
+
+      $self->{hdl}->on_drain (sub {
+         return unless $self;
+
+         if (not $self->{transport_polled}) {
+            $self->{transport_polled} = 1;
+            $self->{transfer_cb}->($chunk_cb) if $self
+         }
+      });
+      $self->{hdl}->push_write ($res);
+
+   } else {
+      $res .= $content;
+      $self->{hdl}->push_write ($res);
+      $self->response_done;
    }
 }
 
@@ -336,6 +385,8 @@ sub push_header_line {
 sub do_disconnect {
    my ($self, $err) = @_;
 
+   $self->{transfer_cb}->() if $self->{transfer_cb};
+   delete $self->{transfer_cb};
    delete $self->{req_timeout};
    $self->event ('disconnect', $err);
    delete $self->{hdl};

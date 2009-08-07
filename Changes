@@ -1,6 +1,8 @@
 Revision history for AnyEvent-HTTPD
 
         - fixed documentation in AE::HTTP::Request.
+        - added asynchronous response functionality,
+          for sending large files via AnyEvent::AIO for instance.
 
 0.6 Tue Jul 14 11:16:44 CEST 2009
         - fixed leaking AE::HTTPD::HTTPConnection.
