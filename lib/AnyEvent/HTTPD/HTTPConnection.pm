@@ -78,6 +78,8 @@ sub response_done {
 
 sub response {
    my ($self, $code, $msg, $hdr, $content) = @_;
+   return unless $self->{hdl};
+
    my $res = "HTTP/1.0 $code $msg\015\012";
    $hdr->{'Expires'}        = $hdr->{'Date'}
                             = time2str time;
@@ -108,7 +110,7 @@ sub response {
 
          delete $self->{transport_polled};
 
-         if (defined $chunk) {
+         if (defined ($chunk) && length ($chunk) > 0) {
             $self->{hdl}->push_write ($chunk);
 
          } else {
@@ -123,12 +125,16 @@ sub response {
       $self->{hdl}->on_drain (sub {
          return unless $self;
 
-         if (not $self->{transport_polled}) {
+         if (length $res) {
+            my $r = $res;
+            undef $res;
+            $chunk_cb->($r);
+
+         } elsif (not $self->{transport_polled}) {
             $self->{transport_polled} = 1;
-            $self->{transfer_cb}->($chunk_cb) if $self
+            $self->{transfer_cb}->($chunk_cb) if $self;
          }
       });
-      $self->{hdl}->push_write ($res);
 
    } else {
       $res .= $content;
@@ -311,11 +317,10 @@ sub _parse_headers {
 sub push_header {
    my ($self, $hdl) = @_;
 
-   $self->{hdl}->unshift_read (regex =>
-      qr<\015?\012\015?\012>, undef, qr<^.*[^\015\012]>,
+   $self->{hdl}->unshift_read (line =>
+      qr{(?<![^\012])\015?\012},
       sub {
          my ($hdl, $data) = @_;
-         $data =~ s/\015?\012$//s;
          my $hdr = _parse_headers ($data);
 
          unless (defined $hdr) {

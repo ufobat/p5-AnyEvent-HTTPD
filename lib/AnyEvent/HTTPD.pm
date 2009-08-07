@@ -104,7 +104,8 @@ default), for a public server, or 127.0.0.1 for a local server.
 
 =item port => $port
 
-The TCP port the HTTP server will listen on.
+The TCP port the HTTP server will listen on. If undefined some
+free port will be used. You can get it via the C<port> method.
 
 =item request_timeout => $seconds
 
@@ -193,6 +194,14 @@ sub handle_app_req {
       last if $self->{req_stop};
    }
 }
+
+=item B<port>
+
+Returns the port number this server is bound to.
+
+=item B<host>
+
+Returns the host/ip this server is bound to.
 
 =item B<stop_request>
 

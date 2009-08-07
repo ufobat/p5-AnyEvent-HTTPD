@@ -1,13 +1,16 @@
 Revision history for AnyEvent-HTTPD
 
+0.7     Fri Aug  7 15:37:27 CEST 2009
         - fixed documentation in AE::HTTP::Request.
         - added asynchronous response functionality,
           for sending large files via AnyEvent::AIO for instance.
+        - added tests to distribution (instead of maintainer only tests).
+        - fixed a bug with reception of requests without headers.
 
-0.6 Tue Jul 14 11:16:44 CEST 2009
+0.6     Tue Jul 14 11:16:44 CEST 2009
         - fixed leaking AE::HTTPD::HTTPConnection.
 
-0.5 Thu Jul  2 04:30:14 CEST 2009
+0.5     Thu Jul  2 04:30:14 CEST 2009
         - applied patch from mathieu at closetwork.org to add a
           host parameter for binding.
         - removed bogus API stuff like ::Appgets or the weird
@@ -22,7 +25,7 @@ Revision history for AnyEvent-HTTPD
         - added 'request_timeout's
         - added keep-alive support (for HTTP 1.0) (thanks to Andrey Smirnov).
 
-0.04 Sun Dec 28 15:48:28 CET 2008
+0.04    Sun Dec 28 15:48:28 CET 2008
         - removed TCP* classes and using AnyEvent::Handle instead.
         - added size and maxlength args to the C<entry> function in Appgets
         - changed the API to actually call the events for all path segments
@@ -30,16 +33,16 @@ Revision history for AnyEvent-HTTPD
           seperators. Sorry for any breakage in your code ;-/
         - removed Perl 5.10 dependency.
 
-0.03 Tue Apr 15 12:57:10 CEST 2008
+0.03    Tue Apr 15 12:57:10 CEST 2008
         - added submit() function to Appgets.
         - fixed a bug in the url() method of AnyEvent::HTTPD::Request where
           the url wasn't get correctly. resulting in bad form behaviour.
 
-0.02 Sat Mar 22 16:09:55 CET 2008
+0.02    Sat Mar 22 16:09:55 CET 2008
         - rewrote the module API to be more "async".
         - made it possible to respond to requests asynchronously
           in C<AnyEvent::HTTPD>.
         - added lots of example scripts.
 
-0.01 Thu Mar 20 19:53:31 CET 2008
+0.01    Thu Mar 20 19:53:31 CET 2008
         - first release.

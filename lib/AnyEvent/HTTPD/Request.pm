@@ -109,6 +109,9 @@ callback is for. You have to call it once you got the next chunk of data. Once
 you sent a chunk of data via C<$data_cb> you can just wait until your callback
 is called again to deliver the next chunk.
 
+If you are done transferring all data call the C<$data_cb> with an empty string
+or with no argument at all.
+
 Please consult the example script C<large_response_example> from the
 C<samples/> directory of the L<AnyEvent::HTTPD> distribution for an example of
 how to use this mechanism.
@@ -225,6 +228,15 @@ were transmitted.
 =cut
 
 sub content { $_[0]->{content} }
+
+=item B<headers>
+
+This method will return a hash reference containing the HTTP headers for this
+HTTP request.
+
+=cut
+
+sub headers { $_[0]->{hdr} }
 
 =back
 

@@ -7,7 +7,7 @@ use AnyEvent::Socket;
 
 my $c = AnyEvent->condvar;
 
-my $h = AnyEvent::HTTPD->new (port => 19090);
+my $h = AnyEvent::HTTPD->new;
 
 my %params;
 
@@ -24,8 +24,7 @@ $h->reg_cb (
 
 my $hdl;
 my $buf;
-if (1) {
-tcp_connect '127.0.0.1', 19090, sub {
+tcp_connect $h->host, $h->port, sub {
    my ($fh) = @_
       or die "couldn't connect: $!";
 
@@ -54,7 +53,6 @@ tcp_connect '127.0.0.1', 19090, sub {
 
    );
 };
-}
 
 $c->recv;
 
