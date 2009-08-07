@@ -9,7 +9,6 @@ my $t;
 $httpd->reg_cb (
    '' => sub {
       my ($httpd, $req) = @_;
-      set_request ($req);
 
       my $html =
          "<html><body><h1>Hello World!</h1>"
