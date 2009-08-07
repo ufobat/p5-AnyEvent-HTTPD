@@ -1,7 +1,6 @@
 #!perl
 use strict;
 use Test::More tests => 2;
-use Coro;
 use AnyEvent::HTTPD;
 
 my $h = AnyEvent::HTTPD->new (port => 19090);

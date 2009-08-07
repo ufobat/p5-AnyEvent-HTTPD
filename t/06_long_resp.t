@@ -1,7 +1,6 @@
 #!perl
 use strict;
 use Test::More tests => 2;
-use Coro;
 use AnyEvent::HTTPD;
 use AnyEvent::Socket;
 

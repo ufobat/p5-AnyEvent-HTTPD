@@ -1,5 +1,8 @@
 Revision history for AnyEvent-HTTPD
 
+0.71    Sat Aug  8 00:43:58 CEST 2009
+        - fixed the published tests. they used Coro.
+
 0.7     Fri Aug  7 15:37:27 CEST 2009
         - fixed documentation in AE::HTTP::Request.
         - added asynchronous response functionality,
