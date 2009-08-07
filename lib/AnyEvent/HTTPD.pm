@@ -14,11 +14,11 @@ AnyEvent::HTTPD - A simple lightweight event based web (application) server
 
 =head1 VERSION
 
-Version 0.7
+Version 0.71
 
 =cut
 
-our $VERSION = '0.7';
+our $VERSION = '0.71';
 
 =head1 SYNOPSIS
 
