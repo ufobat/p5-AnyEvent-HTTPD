@@ -14,3 +14,8 @@ samples/second_example
 samples/delayed_example
 samples/delayed_2_example
 samples/large_response_example
+t/00-load.t
+t/02_simple_requests.t
+t/03_keep_alive.t
+t/05_mp_param.t
+t/06_long_resp.t
