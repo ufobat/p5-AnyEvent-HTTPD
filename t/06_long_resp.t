@@ -1,6 +1,8 @@
 #!perl
 use strict;
 use Test::More tests => 2;
+use AnyEvent::Impl::Perl;
+use AnyEvent;
 use AnyEvent::HTTPD;
 use AnyEvent::Socket;
 
