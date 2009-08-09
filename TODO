@@ -1,5 +1,3 @@
 - implement http 1.0
-- test vars method.
-- test AnyEvent::Socket usage
 - implement maximum connection count.
 - document file upload.

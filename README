@@ -3,7 +3,7 @@ NAME
     server
 
 VERSION
-    Version 0.71
+    Version 0.8
 
 SYNOPSIS
         use AnyEvent::HTTPD;
@@ -56,6 +56,8 @@ FEATURES
         ("multipart/mixed") encoded form parameters.
 
     *   support for streaming responses.
+
+    *   with version 0.8 no more dependend on LWP for HTTP::Date.
 
 METHODS
     The AnyEvent::HTTPD class inherits directly from
