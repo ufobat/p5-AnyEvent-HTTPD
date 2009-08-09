@@ -75,6 +75,8 @@ in the L<AnyEvent::HTTPD> distribution for basic starting points.
 
 =item * support for streaming responses.
 
+=item * with version 0.8 no more dependend on L<LWP> for L<HTTP::Date>.
+
 =back
 
 =head1 METHODS
