@@ -1,8 +1,8 @@
 package AnyEvent::HTTPD::HTTPConnection;
 use IO::Handle;
-use HTTP::Date;
 use AnyEvent::Handle;
 use Object::Event;
+use Time::Local;
 use strict;
 no warnings;
 
@@ -76,13 +76,33 @@ sub response_done {
    }
 }
 
+our @DoW = qw(Sun Mon Tue Wed Thu Fri Sat);
+our @MoY = qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
+our %MoY;
+@MoY{@MoY} = (1..12);
+
+# Taken from HTTP::Date module of LWP.
+sub _time_to_http_date
+{
+    my $time = shift;
+    $time = time unless defined $time;
+
+    my ($sec, $min, $hour, $mday, $mon, $year, $wday) = gmtime($time);
+
+    sprintf("%s, %02d %s %04d %02d:%02d:%02d GMT",
+       $DoW[$wday],
+       $mday, $MoY[$mon], $year + 1900,
+       $hour, $min, $sec);
+}
+
+
 sub response {
    my ($self, $code, $msg, $hdr, $content) = @_;
    return unless $self->{hdl};
 
    my $res = "HTTP/1.0 $code $msg\015\012";
    $hdr->{'Expires'}        = $hdr->{'Date'}
-                            = time2str time;
+                            = _time_to_http_date time;
    $hdr->{'Cache-Control'}  = "max-age=0";
    $hdr->{'Connection'}     = $self->{keep_alive} ? 'Keep-Alive' : 'close';
 

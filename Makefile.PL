@@ -12,7 +12,6 @@ WriteMakefile(
     PREREQ_PM => {
         'AnyEvent'       => 0,
         'Test::More'     => 0,
-        'HTTP::Date'     => 0,
         'Object::Event'  => 0,
         'POSIX'          => 0,
         'URI'            => 0,

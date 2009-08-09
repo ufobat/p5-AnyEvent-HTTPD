@@ -1,5 +1,9 @@
 Revision history for AnyEvent-HTTPD
 
+0.8
+        - made tests run with AnyEvent::Impl::Perl.
+        - removed HTTP::Date (LWP) dependency.
+
 0.71    Sat Aug  8 00:43:58 CEST 2009
         - fixed the published tests. they used Coro.
 
