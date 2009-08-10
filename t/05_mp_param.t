@@ -1,5 +1,5 @@
 #!perl
-use strict;
+use common::sense;
 use Test::More tests => 5;
 use AnyEvent::Impl::Perl;
 use AnyEvent;

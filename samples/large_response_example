@@ -1,4 +1,5 @@
 #!/opt/perl/bin/perl
+use common::sense;
 use AnyEvent;
 use AnyEvent::HTTPD;
 use AnyEvent::AIO;

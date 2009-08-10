@@ -1,10 +1,9 @@
 package AnyEvent::HTTPD::HTTPConnection;
+use common::sense;
 use IO::Handle;
 use AnyEvent::Handle;
 use Object::Event;
 use Time::Local;
-use strict;
-no warnings;
 
 use Scalar::Util qw/weaken/;
 our @ISA = qw/Object::Event/;

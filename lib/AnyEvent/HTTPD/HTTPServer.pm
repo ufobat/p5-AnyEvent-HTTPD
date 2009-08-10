@@ -1,7 +1,5 @@
 package AnyEvent::HTTPD::HTTPServer;
-use strict;
-no warnings;
-
+use common::sense;
 use Scalar::Util qw/weaken/;
 use Object::Event;
 use AnyEvent::Handle;

@@ -3,7 +3,7 @@ NAME
     server
 
 VERSION
-    Version 0.8
+    Version 0.81
 
 SYNOPSIS
         use AnyEvent::HTTPD;

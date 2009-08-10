@@ -1,5 +1,5 @@
 #!/opt/perl/bin/perl
-use strict;
+use common::sense;
 use AnyEvent::HTTPD;
 
 my $httpd = AnyEvent::HTTPD->new (port => 19090);

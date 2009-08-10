@@ -1,6 +1,5 @@
 package AnyEvent::HTTPD::Request;
-use strict;
-no warnings;
+use common::sense;
 
 =head1 NAME
 

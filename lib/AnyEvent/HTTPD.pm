@@ -1,7 +1,5 @@
 package AnyEvent::HTTPD;
-use strict;
-no warnings;
-
+use common::sense;
 use Scalar::Util qw/weaken/;
 use URI;
 use AnyEvent::HTTPD::Request;
@@ -14,11 +12,11 @@ AnyEvent::HTTPD - A simple lightweight event based web (application) server
 
 =head1 VERSION
 
-Version 0.8
+Version 0.81
 
 =cut
 
-our $VERSION = '0.8';
+our $VERSION = '0.81';
 
 =head1 SYNOPSIS
 
