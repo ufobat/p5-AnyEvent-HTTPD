@@ -25,7 +25,7 @@ $h->reg_cb (
 
 my $hdl;
 my $buf;
-tcp_connect $h->host, $h->port, sub {
+tcp_connect '127.0.0.1', $h->port, sub {
    my ($fh) = @_
       or die "couldn't connect: $!";
 

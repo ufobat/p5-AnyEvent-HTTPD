@@ -1,5 +1,9 @@
 Revision history for AnyEvent-HTTPD
 
+0.82    Tue Aug 11 08:33:05 CEST 2009
+        - added common::sense to prereq.
+        - made tests using 127.0.0.1.
+
 0.81    Mon Aug 10 09:59:16 CEST 2009
         - cleaned up dependencies in Makefile.PL.
         - using common::sense in all modules & scripts.
