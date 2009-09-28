@@ -143,9 +143,11 @@ sub new {
 
                   weaken $con;
 
-                  $self->handle_app_req ($meth, $url, $hdr, $cont, sub {
-                     $con->response (@_) if $con;
-                  });
+                  $self->handle_app_req (
+                     $meth, $url, $hdr, $cont, $con->{host}, $con->{port},
+                     sub {
+                        $con->response (@_) if $con;
+                     });
                } else {
                   $con->response (200, "ok");
                }
@@ -164,7 +166,7 @@ sub new {
 }
 
 sub handle_app_req {
-   my ($self, $meth, $url, $hdr, $cont, $respcb) = @_;
+   my ($self, $meth, $url, $hdr, $cont, $host, $port, $respcb) = @_;
 
    my $req =
       AnyEvent::HTTPD::Request->new (
@@ -174,7 +176,9 @@ sub handle_app_req {
          hdr     => $hdr,
          parm    => (ref $cont ? $cont : {}),
          content => (ref $cont ? undef : $cont),
-         resp    => $respcb
+         resp    => $respcb,
+         host    => $host,
+         port    => $port,
       );
 
    $self->{req_stop} = 0;

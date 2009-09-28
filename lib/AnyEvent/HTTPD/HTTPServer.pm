@@ -41,12 +41,14 @@ sub new {
 
    $self->{srv} =
       tcp_server $self->{host}, $self->{port}, sub {
-         my ($fh) = @_;
+         my ($fh, $host, $port) = @_;
+
          unless ($fh) {
             $self->event (error => "couldn't accept client: $!");
             return;
          }
-         $self->accept_connection ($fh);
+
+         $self->accept_connection ($fh, $host, $port);
       }, sub {
          my ($fh, $host, $port) = @_;
          $self->{real_port} = $port;
@@ -61,12 +63,14 @@ sub port { $_[0]->{real_port} }
 sub host { $_[0]->{real_host} }
 
 sub accept_connection {
-   my ($self, $fh) = @_;
+   my ($self, $fh, $h, $p) = @_;
 
    my $htc =
       AnyEvent::HTTPD::HTTPConnection->new (
          fh => $fh,
-         request_timeout => $self->{request_timeout});
+         request_timeout => $self->{request_timeout},
+         host => $h,
+         port => $p);
 
    $self->{handles}->{$htc} = $htc;
 

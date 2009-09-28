@@ -1,6 +1,6 @@
 #!perl
 use common::sense;
-use Test::More tests => 2;
+use Test::More tests => 4;
 use AnyEvent::Impl::Perl;
 use AnyEvent;
 use AnyEvent::HTTPD;
@@ -18,7 +18,12 @@ $h->reg_cb (
       my ($httpd, $req) = @_;
       $req_hdr = $req->headers->{'content-type'};
       $req->respond ({
-         content => ['text/plain', "Test response"]
+         content => [
+            'text/plain',
+            "Test response\0"
+            . $req->client_host . "\0"
+            . $req->client_port
+         ]
       });
    },
 );
@@ -43,5 +48,9 @@ tcp_connect '127.0.0.1', $h->port, sub {
 
 my $r = $c->recv;
 
-ok ($r =~ /Test response/m, 'test response ok');
+my ($tr, $host, $port) = split /\0/, $r;
+
+ok ($tr =~ /Test response/m, 'test response ok');
 ok ($req_hdr =~ /Foo/, 'test header ok');
+ok ($host ne '', 'got a client host: ' . $host);
+ok ($port ne '', 'got a client port: ' . $port);

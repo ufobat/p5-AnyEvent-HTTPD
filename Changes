@@ -1,5 +1,8 @@
 Revision history for AnyEvent-HTTPD
 
+0.83
+        - added client host and port to the request.
+
 0.82    Tue Aug 11 08:33:05 CEST 2009
         - added common::sense to prereq.
         - made tests using 127.0.0.1.

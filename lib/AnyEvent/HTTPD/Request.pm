@@ -237,6 +237,24 @@ HTTP request.
 
 sub headers { $_[0]->{hdr} }
 
+=item B<client_host>
+
+This method returns the host/IP of the HTTP client this request was received
+from.
+
+=cut
+
+sub client_host { $_[0]->{host} }
+
+=item B<client_port>
+
+This method returns the TCP port number of the HTTP client this
+request was received from.
+
+=cut
+
+sub client_port { $_[0]->{port} }
+
 =back
 
 =head1 COPYRIGHT & LICENSE
