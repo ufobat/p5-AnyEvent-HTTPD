@@ -1,6 +1,6 @@
 Revision history for AnyEvent-HTTPD
 
-0.83
+0.83    Tue Sep 29 16:29:57 CEST 2009
         - added client host and port to the request.
 
 0.82    Tue Aug 11 08:33:05 CEST 2009
