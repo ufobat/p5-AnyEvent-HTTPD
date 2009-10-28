@@ -1,5 +1,7 @@
 Revision history for AnyEvent-HTTPD
 
+        - added client_connected and client_disconnected events.
+
 0.83    Tue Sep 29 16:29:57 CEST 2009
         - added client host and port to the request.
 

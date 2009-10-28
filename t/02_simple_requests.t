@@ -1,6 +1,6 @@
 #!perl
 use common::sense;
-use Test::More tests => 4;
+use Test::More tests => 8;
 use AnyEvent::Impl::Perl;
 use AnyEvent;
 use AnyEvent::HTTPD;
@@ -12,6 +12,8 @@ my $h = AnyEvent::HTTPD->new;
 
 my $req_url;
 my $req_hdr;
+
+my ($H, $P);
 
 $h->reg_cb (
    '/test' => sub {
@@ -26,6 +28,17 @@ $h->reg_cb (
          ]
       });
    },
+   client_connected => sub {
+      my ($httpd, $h, $p) = @_;
+      ok ($h ne '', "got client host");
+      ok ($p ne '', "got client port");
+      ($H, $P) = ($h, $p);
+   },
+   client_disconnected => sub {
+      my ($httpd, $h, $p) = @_;
+      is ($h, $H, "got client host disconnect");
+      is ($p, $P, "got client port disconnect");
+   }
 );
 
 my $hdl;

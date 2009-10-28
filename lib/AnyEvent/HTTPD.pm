@@ -153,11 +153,14 @@ sub new {
                }
             }
          );
+
+         $self->event (client_connected => $con->{host}, $con->{port});
       },
       disconnect => sub {
          my ($self, $con) = @_;
          $con->unreg_cb (delete $self->{conns}->{$con});
-      }
+         $self->event (client_disconnected => $con->{host}, $con->{port});
+      },
    );
 
    $self->{state} ||= {};
@@ -296,8 +299,27 @@ itself.  The second argument (C<$req>) is the L<AnyEvent::HTTPD::Request>
 object for this request. It can be used to get the (possible) form parameters
 for this request or the transmitted content and respond to the request.
 
-Also every request also emits the C<request> event, with the same arguments and
-semantics, you can use this to implement your own request multiplexing.
+
+Along with the above mentioned events these events are also provided:
+
+=over 4
+
+=item request => $req
+
+Every request also emits the C<request> event, with the same arguments and
+semantics as the above mentioned path request events.  You can use this to
+implement your own request multiplexing. You can use C<stop_request> to stop
+any further processing of the request as the C<request> event is the first
+thing that is executed for an incoming request.
+
+=item client_connected => $host, $port
+
+=item client_disconnected => $host, $port
+
+These events are emitted whenever a client coming from C<$host:$port> connects
+to your server or is disconnected from it.
+
+=back
 
 =head1 CACHING
 
