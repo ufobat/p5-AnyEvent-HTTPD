@@ -5,6 +5,8 @@ use AnyEvent::Handle;
 use Object::Event;
 use Time::Local;
 
+use AnyEvent::HTTPD::Util;
+
 use Scalar::Util qw/weaken/;
 our @ISA = qw/Object::Event/;
 
@@ -53,7 +55,7 @@ sub new {
 sub error {
    my ($self, $code, $msg, $hdr, $content) = @_;
 
-   if ($code !~ /^(1\d\d|204|304)$/) {
+   if ($code !~ /^(1\d\d|204|304)$/o) {
       unless (defined $content) { $content = "$code $msg" }
       $hdr->{'Content-Type'} = 'text/plain';
    }
@@ -164,10 +166,10 @@ sub response {
 
 sub _unquote {
    my ($str) = @_;
-   if ($str =~ /^"(.*?)"$/) {
+   if ($str =~ /^"(.*?)"$/o) {
       $str = $1;
       my $obo = '';
-      while ($str =~ s/^(?:([^"]+)|\\(.))//s) {
+      while ($str =~ s/^(?:([^"]+)|\\(.))//so) {
         $obo .= $1;
       }
       $str = $obo;
@@ -179,8 +181,8 @@ sub decode_part {
    my ($self, $hdr, $cont) = @_;
 
    $hdr = _parse_headers ($hdr);
-   if ($hdr->{'content-disposition'} =~ /form-data|attachment/) {
-      my ($dat, @pars) = split /\s*;\s*/, $hdr->{'content-disposition'};
+   if ($hdr->{'content-disposition'} =~ /form-data|attachment/o) {
+      my ($dat, @pars) = split /\s*;\s*/o, $hdr->{'content-disposition'};
       my @params;
 
       my %p;
@@ -188,8 +190,8 @@ sub decode_part {
       my @res;
 
       for my $name_para (@pars) {
-         my ($name, $par) = split /\s*=\s*/, $name_para;
-         if ($par =~ /^".*"$/) { $par = _unquote ($par) }
+         my ($name, $par) = split /\s*=\s*/o, $name_para;
+         if ($par =~ /^".*"$/o) { $par = _unquote ($par) }
          $p{$name} = $par;
       }
 
@@ -223,7 +225,7 @@ sub decode_multipart {
       ((?:[^\015\012]+\015\012)* ) \015?\012
       (.*?)                        \015?\012
       (--\Q$boundary\E (--)?       \015?\012)
-      /\3/xs) {
+      /\3/xso) {
       my ($h, $c, $e) = ($1, $2, $4);
 
       if (my (@p) = $self->decode_part ($h, $c)) {
@@ -254,34 +256,12 @@ sub decode_multipart {
 #    are separated from each other by `&'.
 #
 
-sub _url_unescape {
-   my ($val) = @_;
-   $val =~ s/\+/\040/g;
-   $val =~ s/%([0-9a-fA-F][0-9a-fA-F])/chr (hex ($1))/eg;
-   $val
-}
-
-sub _parse_urlencoded {
-   my ($cont) = @_;
-   my (@pars) = split /\&/, $cont;
-   $cont = {};
-
-   for (@pars) {
-      my ($name, $val) = split /=/, $_;
-      $name = _url_unescape ($name);
-      $val  = _url_unescape ($val);
-
-      push @{$cont->{$name}}, [$val, ''];
-   }
-   $cont
-}
-
 sub _content_type_boundary {
    my ($ctype) = @_;
-   my ($c, @params) = split /\s*[;,]\s*/, $ctype;
+   my ($c, @params) = split /\s*[;,]\s*/o, $ctype;
    my $bound;
    for (@params) {
-      if (/^\s*boundary\s*=\s*(.*?)\s*$/) {
+      if (/^\s*boundary\s*=\s*(.*?)\s*$/o) {
          $bound = _unquote ($1);
       }
    }
@@ -291,15 +271,15 @@ sub _content_type_boundary {
 sub handle_request {
    my ($self, $method, $uri, $hdr, $cont) = @_;
 
-   $self->{keep_alive} = ($hdr->{connection} =~ /keep-alive/i);
+   $self->{keep_alive} = ($hdr->{connection} =~ /keep-alive/io);
 
    my ($ctype, $bound) = _content_type_boundary ($hdr->{'content-type'});
 
    if ($ctype eq 'multipart/form-data') {
       $cont = $self->decode_multipart ($cont, $bound);
 
-   } elsif ($ctype =~ /x-www-form-urlencoded/) {
-      $cont = _parse_urlencoded ($cont);
+   } elsif ($ctype =~ /x-www-form-urlencoded/o) {
+      $cont = parse_urlencoded ($cont);
    }
 
    $self->event (request => $method, $uri, $hdr, $cont);
@@ -317,17 +297,17 @@ sub _parse_headers {
       [\011\040]*
       ( (?: [^\012]+ | \012 [\011\040] )* )
       \012
-   /sgcx) {
+   /sgcxo) {
 
       $hdr->{lc $1} .= ",$2"
    }
 
-   return undef unless $header =~ /\G$/sgx;
+   return undef unless $header =~ /\G$/sgxo;
 
    for (keys %$hdr) {
       substr $hdr->{$_}, 0, 1, '';
       # remove folding:
-      $hdr->{$_} =~ s/\012([\011\040])/$1/sg;
+      $hdr->{$_} =~ s/\012([\011\040])/$1/sgo;
    }
 
    $hdr
@@ -337,7 +317,7 @@ sub push_header {
    my ($self, $hdl) = @_;
 
    $self->{hdl}->unshift_read (line =>
-      qr{(?<![^\012])\015?\012},
+      qr{(?<![^\012])\015?\012}o,
       sub {
          my ($hdl, $data) = @_;
          my $hdr = _parse_headers ($data);
@@ -378,11 +358,11 @@ sub push_header_line {
 
       delete $self->{req_timeout};
 
-      if ($line =~ /(\S+) \040 (\S+) \040 HTTP\/(\d+)\.(\d+)/xs) {
+      if ($line =~ /(\S+) \040 (\S+) \040 HTTP\/(\d+)\.(\d+)/xso) {
          my ($meth, $url, $vm, $vi) = ($1, $2, $3, $4);
 
          if (not grep { $meth eq $_ } qw/GET HEAD POST/) {
-            $self->error (405, "method not allowed",
+            $self->error (501, "not implemented",
                           { Allow => "GET,HEAD,POST" });
             return;
          }

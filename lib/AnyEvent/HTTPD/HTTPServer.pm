@@ -32,7 +32,10 @@ under the same terms as Perl itself.
 sub new {
    my $this  = shift;
    my $class = ref($this) || $this;
-   my $self  = { @_ };
+   my $self  = {
+      connection_class => "AnyEvent::HTTPD::HTTPConnection",
+      @_
+   };
    bless $self, $class;
 
    my $rself = $self;
@@ -53,6 +56,7 @@ sub new {
          my ($fh, $host, $port) = @_;
          $self->{real_port} = $port;
          $self->{real_host} = $host;
+         return $self->{backlog};
       };
 
    return $self
@@ -66,7 +70,7 @@ sub accept_connection {
    my ($self, $fh, $h, $p) = @_;
 
    my $htc =
-      AnyEvent::HTTPD::HTTPConnection->new (
+      $self->{connection_class}->new (
          fh => $fh,
          request_timeout => $self->{request_timeout},
          host => $h,

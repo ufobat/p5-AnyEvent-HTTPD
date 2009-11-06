@@ -1,6 +1,10 @@
 Revision history for AnyEvent-HTTPD
 
+0.84
         - added client_connected and client_disconnected events.
+        - returning 501 instead of 405 on unimplemented method.
+        - optimized regexes (contributed by Mons Anderson).
+        - added backlog option to AE::HTTPD (contributed by Mons Anderson).
 
 0.83    Tue Sep 29 16:29:57 CEST 2009
         - added client host and port to the request.
