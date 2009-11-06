@@ -129,6 +129,12 @@ This is a special parameter that you can use to pass your own connection class
 to L<AnyEvent::HTTPD::HTTPServer>.  This is only of interest to you if you plan
 to subclass L<AnyEvent::HTTPD::HTTPConnection>.
 
+=item request_class => $class
+
+This is a special parameter that you can use to pass your own request class
+to L<AnyEvent::HTTPD>.  This is only of interest to you if you plan
+to subclass L<AnyEvent::HTTPD::Request>.
+
 =back
 
 =cut
@@ -136,7 +142,10 @@ to subclass L<AnyEvent::HTTPD::HTTPConnection>.
 sub new {
    my $this  = shift;
    my $class = ref($this) || $this;
-   my $self  = $class->SUPER::new (@_);
+   my $self  = $class->SUPER::new (
+      request_class => "AnyEvent::HTTPD::Request",
+      @_
+   );
 
    $self->reg_cb (
       connect => sub {
@@ -188,7 +197,7 @@ sub handle_app_req {
    my ($self, $meth, $url, $hdr, $cont, $host, $port, $respcb) = @_;
 
    my $req =
-      AnyEvent::HTTPD::Request->new (
+      $self->{request_class}->new (
          httpd   => $self,
          method  => $meth,
          url     => $url,
