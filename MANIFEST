@@ -7,6 +7,7 @@ t/pod.t
 lib/AnyEvent/HTTPD/HTTPServer.pm
 lib/AnyEvent/HTTPD/HTTPConnection.pm
 lib/AnyEvent/HTTPD/Request.pm
+lib/AnyEvent/HTTPD/Util.pm
 lib/AnyEvent/HTTPD.pm
 samples/simple_example
 samples/bshttp.png
