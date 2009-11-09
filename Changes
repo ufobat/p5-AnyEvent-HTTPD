@@ -1,6 +1,6 @@
 Revision history for AnyEvent-HTTPD
 
-0.84
+0.84    Mon Nov  9 17:18:07 CET 2009
         - added client_connected and client_disconnected events.
         - returning 501 instead of 405 on unimplemented method.
         - optimized regexes (contributed by Mons Anderson).
