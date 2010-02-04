@@ -1,3 +1,17 @@
+
+04 04:48:26 <miyagawa> elmex: hi
+04 04:49:01 <miyagawa> AnyEvent::HTTPD seems to always set Content-Length even if it's response with no entities such as 204 or 304
+04 04:49:11 <miyagawa> it's a violation of HTTP 1.0/1.1
+04 06:35:48 <miyagawa> elmex: http://github.com/miyagawa/Plack-Handler-AnyEvent-HTTPD/ :)
+04 06:36:37 <miyagawa> few hacks out there -- $req doesn't seem to have a method to get raw URL, so I use $req->{url}
+04 06:36:56 <miyagawa> i just overrode HTTPConnection to bypass body parsing since it's unnecessary in PSGI
+04 06:37:11 <miyagawa> and added a hack to avoid adding Content-Length in 204/304 etc.
+04 06:37:15 <miyagawa> otherwise it works pretty well
+04 06:43:26 <miyagawa> oh also, there doesn't seem to have a way to get the protocol (HTTP/1.0) from the request. Doesn't matter much since it doesn't support 1.1 anyway though
+04 09:37:42 <elmex> miyagawa: hmm, the content-length is bad, hmm, i'll look into it next time i have some spare time
+04 09:38:25 <miyagawa> elmex: http://gist.github.com/294458 is a quick patch and a test
+
+
 - implement http 1.0
 - implement maximum connection count.
 - document file upload.

@@ -83,7 +83,7 @@ B<How to send large files:>
 For longer responses you can give a callback instead of a string to
 the response function for the value of the C<$content>.
 
-   $req->response ({ content => ['video/x-ms-asf', sub {
+   $req->respond ({ content => ['video/x-ms-asf', sub {
       my ($data_cb) = @_;
 
       # start some async retrieve operation, for example use
@@ -97,7 +97,7 @@ The given callback will receive as first argument either another callback
 there is no more data required and the transfer has been completed (either by
 you sending no more data, or by a disconnect of the client).
 
-The callback given to C<response> will be called whenever the send queue of the
+The callback given to C<respond> will be called whenever the send queue of the
 HTTP connection becomes empty (meaning that the data is written out to the
 kernel). If it is called you have to start delivering the next chunk of data.
 
