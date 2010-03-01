@@ -66,8 +66,12 @@ sub error {
 sub response_done {
    my ($self) = @_;
 
-   $self->{hdl}->on_drain; # clear any drain handlers
    (delete $self->{transfer_cb})->() if $self->{transfer_cb};
+
+   # sometimes a response might be written after connection is already dead:
+   return unless $self->{hdl};
+
+   $self->{hdl}->on_drain; # clear any drain handlers
 
    if ($self->{keep_alive}) {
       $self->push_header_line;
