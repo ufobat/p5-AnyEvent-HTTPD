@@ -337,6 +337,25 @@ implement your own request multiplexing. You can use C<stop_request> to stop
 any further processing of the request as the C<request> event is the first
 thing that is executed for an incoming request.
 
+An example of one of many possible uses:
+
+   $httpd->reg_cb (
+      request => sub {
+         my ($httpd, $req) = @_;
+
+         my $url = $req->url;
+
+         if ($url->path =~ /\/images\/img_(\d+).jpg$/) {
+            handle_image_request ($req, $1); # your task :)
+
+            # stop the request from emitting further events
+            # so that the '/images/img_001.jpg' and the
+            # '/images' and '' events are NOT emitted:
+            $httpd->stop_request;
+         }
+      }
+   );
+
 =item client_connected => $host, $port
 
 =item client_disconnected => $host, $port

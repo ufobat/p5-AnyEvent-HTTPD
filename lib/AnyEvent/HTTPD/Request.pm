@@ -25,7 +25,7 @@ sub new {
 
 =item B<url>
 
-This method returns the URL of the current request.
+This method returns the URL of the current request as L<URI> object.
 
 =cut
 
