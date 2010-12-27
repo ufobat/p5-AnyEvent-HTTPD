@@ -2,6 +2,8 @@ Revision history for AnyEvent-HTTPD
 
         - fixed a small thing with response on dead connections.
         - added small example of 'request' event usage.
+        - make Content-Length: not be empty.
+        - hand HEAD requests down to the event handlers.
 
 0.84    Mon Nov  9 17:18:07 CET 2009
         - added client_connected and client_disconnected events.

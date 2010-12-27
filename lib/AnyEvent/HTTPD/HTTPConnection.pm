@@ -111,7 +111,7 @@ sub response {
    $hdr->{'Cache-Control'}  = "max-age=0";
    $hdr->{'Connection'}     = $self->{keep_alive} ? 'Keep-Alive' : 'close';
 
-   $hdr->{'Content-Length'} = length $content
+   $hdr->{'Content-Length'} = length "$content"
       if not (defined $hdr->{'Content-Length'}) && not ref $content;
 
    unless (defined $hdr->{'Content-Length'}) {

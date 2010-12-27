@@ -164,7 +164,7 @@ sub new {
                   $cont = parse_urlencoded ($url->query);
                }
 
-               if ($meth eq 'GET' or $meth eq 'POST') {
+               if ($meth eq 'GET' or $meth eq 'POST' or $meth eq 'HEAD') {
 
                   weaken $con;
 
