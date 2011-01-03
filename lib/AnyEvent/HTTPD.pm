@@ -433,8 +433,9 @@ L<http://search.cpan.org/dist/AnyEvent-HTTPD>
 
 =head1 ACKNOWLEDGEMENTS
 
-   Andrey Smirnov - for keep-alive patches.
-   Pedro Melo     - for valuable input in general and patches.
+   Andrey Smirnov   - for keep-alive patches.
+   Pedro Melo       - for valuable input in general and patches.
+   Nicholas Harteau - patch for ';' pair separator support.
 
 =head1 COPYRIGHT & LICENSE
 
