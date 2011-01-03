@@ -29,7 +29,7 @@ sub url_unescape {
 
 sub parse_urlencoded {
    my ($cont) = @_;
-   my (@pars) = split /\&/, $cont;
+   my (@pars) = split /[\&\;]/, $cont;
    $cont = {};
 
    for (@pars) {
