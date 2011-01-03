@@ -1,3 +1,34 @@
+03 08:05:12 <schmorp> chunked ist trivial
+03 08:05:22 <elmex> mehr oder weniger
+03 08:05:32 <schmorp> http://ue.tst.eu/f495d10d33172f9ed33035879936dc60.txt
+03 08:05:38 <schmorp> nee, chunked ist wirklich trivial
+03 08:05:48 <schmorp> du musst es nicht wirklich alles parsen
+03 08:05:50 <elmex> empfang,  hmm
+03 08:05:57 <schmorp> du musst nur empfang supporten
+03 08:06:06 <schmorp> sendne ist bei deinem interface wohl unnötig
+03 08:06:07 <elmex> ajo, sitmmt ja
+03 08:06:15 <schmorp> wnen du inkrementells endest
+03 08:06:19 <schmorp> wäre chunked aber exre, zu empfehlen
+03 08:06:36 <schmorp> und allgemein sowieso, um abgebrochene transfers zu erkennen
+03 08:06:43 <schmorp> beim senden ists auch trivial
+03 08:07:10 <schmorp> du kannst immer connection: close replyen
+03 08:07:24 <schmorp> dann brauchst du dir um keepalive keine gedanken zu machen
+03 08:07:37 <schmorp> bei options lieferst du immer 200
+03 08:07:44 <schmorp> (oder so, muss nachgucken)
+03 08:07:54 <schmorp> einziges problem ist 100 continue
+03 08:08:20 <schmorp> für 1.0-compat musst dud ann nur
+03 08:08:25 <schmorp> Host: optional bei 1.0-reqwuest
+03 08:08:33 <schmorp> 100 continue nicht senden (tust du aber eh nicht)
+03 08:08:44 <schmorp> richtig scheisse wird es nur wenn du statische dateien supportest
+03 08:09:25 <schmorp> elmex: dann musst du if-unmodified-since, if-range, range, if-none-match,
+                      if-match usf. supporten
+03 08:09:52 <schmorp> nee, sowa snoch nicht
+03 08:10:13 <elmex> schmorp: statische files sind nicht direkt mein ziel, wäre mir dann auch bis
+                    sl zuviel des guten :)
+03 08:10:26 <schmorp> in der doku sind sie evtl. irgednwo erwähnt
+03 08:10:48 <schmorp> elmex: die heade rmusst du sowiesoimmer suppoorten, aber die iplementation
+                       ist einfach wenn das dokument sich "immer ändert"
+
 
 04 04:48:26 <miyagawa> elmex: hi
 04 04:49:01 <miyagawa> AnyEvent::HTTPD seems to always set Content-Length even if it's response with no entities such as 204 or 304
