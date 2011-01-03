@@ -372,12 +372,7 @@ sub push_header_line {
          }
 
          if ($vm >= 2) {
-            $self->error (400, "bad request");
-            return;
-         }
-
-         if ($vm == 1 && $vi >= 1) {
-            $self->error (400, "bad request");
+            $self->error (506, "http protocol version not supported");
             return;
          }
 

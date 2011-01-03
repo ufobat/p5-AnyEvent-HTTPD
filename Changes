@@ -4,7 +4,6 @@ Revision history for AnyEvent-HTTPD
         - added small example of 'request' event usage.
         - make Content-Length: not be empty.
         - hand HEAD requests down to the event handlers.
-        - reject HTTTP/1.1.
 
 0.84    Mon Nov  9 17:18:07 CET 2009
         - added client_connected and client_disconnected events.
