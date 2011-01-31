@@ -1,7 +1,11 @@
 Revision history for AnyEvent-HTTPD
 
 
+0.91    Mon Jan 31 20:35:11 CET 2011
         - set the Date header correctly.
+        - append a newline to error messages.
+        - hopefully improved connection closing mechanism.
+        - don't send body when responding to a HEAD request.
 
 0.90    Mon Jan 31 13:04:45 CET 2011
         - fixed a small thing with response on dead connections.

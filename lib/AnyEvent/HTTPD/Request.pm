@@ -147,11 +147,13 @@ sub respond {
 
    $self->{responded} = 1;
 
+   my $no_body = $self->method eq 'HEAD';
+
    if (not defined $res) {
-      $rescb->(404, "ok", { 'Content-Type' => 'text/html' }, "<h1>No content</h1>");
+      $rescb->(404, "ok", { 'Content-Type' => 'text/html' }, "<h1>No content</h1>", $no_body);
 
    } else {
-      $rescb->(@$res);
+      $rescb->(@$res, $no_body);
    }
 }
 
