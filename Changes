@@ -1,6 +1,6 @@
 Revision history for AnyEvent-HTTPD
 
-0.90
+0.90    Mon Jan 31 13:04:45 CET 2011
         - fixed a small thing with response on dead connections.
         - added small example of 'request' event usage.
         - make Content-Length: not be empty.
