@@ -244,7 +244,7 @@ sub decode_multipart {
    return $parts;
 }
 
-# application/x-www-form-urlencoded  
+# application/x-www-form-urlencoded
 #
 # This is the default content type. Forms submitted with this content type must
 # be encoded as follows:
@@ -365,9 +365,9 @@ sub push_header_line {
       if ($line =~ /(\S+) \040 (\S+) \040 HTTP\/(\d+)\.(\d+)/xso) {
          my ($meth, $url, $vm, $vi) = ($1, $2, $3, $4);
 
-         if (not grep { $meth eq $_ } qw/GET HEAD POST/) {
+         if (not grep { $meth eq $_ } @{ $self->{allowed_methods} }) {
             $self->error (501, "not implemented",
-                          { Allow => "GET,HEAD,POST" });
+                          { Allow => join(",", @{ $self->{allowed_methods} })});
             return;
          }
 

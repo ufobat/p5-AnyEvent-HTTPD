@@ -135,6 +135,13 @@ This is a special parameter that you can use to pass your own request class
 to L<AnyEvent::HTTPD>.  This is only of interest to you if you plan
 to subclass L<AnyEvent::HTTPD::Request>.
 
+=item allowed_methods => $arrayref
+
+This parameter sets the allowed HTTP methods for requests, defaulting to GET,
+HEAD and POST.  Each request received is matched against this list, and a
+'501 not implemented' is returned if no match is found.  Requests using
+disallowed handlers will never trigger callbacks.
+
 =back
 
 =cut
@@ -163,8 +170,7 @@ sub new {
                if ($meth eq 'GET') {
                   $cont = parse_urlencoded ($url->query);
                }
-
-               if ($meth eq 'GET' or $meth eq 'POST' or $meth eq 'HEAD') {
+               if ( scalar grep { $meth eq $_ } @{ $self->{allowed_methods} } ) {
 
                   weaken $con;
 
@@ -234,6 +240,11 @@ Returns the port number this server is bound to.
 =item B<host>
 
 Returns the host/ip this server is bound to.
+
+=item B<allowed_methods>
+
+Returns an arrayref of allowed HTTP methods, possibly as set by the
+allowed_methods argument to the constructor.
 
 =item B<stop_request>
 
@@ -435,7 +446,8 @@ L<http://search.cpan.org/dist/AnyEvent-HTTPD>
 
    Andrey Smirnov   - for keep-alive patches.
    Pedro Melo       - for valuable input in general and patches.
-   Nicholas Harteau - patch for ';' pair separator support.
+   Nicholas Harteau - patch for ';' pair separator support,
+                      patch for allowed_methods support
 
 =head1 COPYRIGHT & LICENSE
 

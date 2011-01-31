@@ -34,7 +34,8 @@ sub new {
    my $class = ref($this) || $this;
    my $self  = {
       connection_class => "AnyEvent::HTTPD::HTTPConnection",
-      @_
+      allowed_methods  => [ qw/GET HEAD POST/ ],
+      @_,
    };
    bless $self, $class;
 
@@ -66,6 +67,8 @@ sub port { $_[0]->{real_port} }
 
 sub host { $_[0]->{real_host} }
 
+sub allowed_methods { $_[0]->{allowed_methods} }
+
 sub accept_connection {
    my ($self, $fh, $h, $p) = @_;
 
@@ -73,6 +76,7 @@ sub accept_connection {
       $self->{connection_class}->new (
          fh => $fh,
          request_timeout => $self->{request_timeout},
+         allowed_methods => $self->{allowed_methods},
          host => $h,
          port => $p);
 
