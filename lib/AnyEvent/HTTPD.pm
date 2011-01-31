@@ -381,8 +381,10 @@ to your server or is disconnected from it.
 Any response from the HTTP server will have C<Cache-Control> set to C<max-age=0> and
 also the C<Expires> header set to the C<Date> header. Meaning: Caching is disabled.
 
-If you need caching or would like to have it you can send me a mail or even
-better: a patch :)
+You can of course set those headers yourself in the response, but keep in mind
+that the default for those headers are like mentioned above.
+
+If you need more support here you can send me a mail or even better: a patch :)
 
 =head1 AUTHOR
 

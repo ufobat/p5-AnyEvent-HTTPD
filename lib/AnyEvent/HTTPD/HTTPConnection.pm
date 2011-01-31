@@ -107,8 +107,10 @@ sub response {
 
    my $res = "HTTP/1.0 $code $msg\015\012";
    $hdr->{'Expires'}        = $hdr->{'Date'}
-                            = _time_to_http_date time;
-   $hdr->{'Cache-Control'}  = "max-age=0";
+                            = _time_to_http_date time
+       unless defined $hdr->{'Expires'};
+   $hdr->{'Cache-Control'}  = "max-age=0"
+       unless defined $hdr->{'Cache-Control'};
    $hdr->{'Connection'}     = $self->{keep_alive} ? 'Keep-Alive' : 'close';
 
    $hdr->{'Content-Length'} = length "$content"
