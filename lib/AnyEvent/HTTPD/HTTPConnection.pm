@@ -106,8 +106,9 @@ sub response {
    return unless $self->{hdl};
 
    my $res = "HTTP/1.0 $code $msg\015\012";
-   $hdr->{'Expires'}        = $hdr->{'Date'}
-                            = _time_to_http_date time
+   $hdr->{'Date'} = _time_to_http_date time
+      unless defined $hdr->{'Date'};
+   $hdr->{'Expires'} = $hdr->{'Date'}
        unless defined $hdr->{'Expires'};
    $hdr->{'Cache-Control'}  = "max-age=0"
        unless defined $hdr->{'Cache-Control'};
