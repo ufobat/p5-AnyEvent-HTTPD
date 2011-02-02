@@ -1,6 +1,6 @@
 #!perl
 use common::sense;
-use Test::More tests => 13;
+use Test::More tests => 12;
 use AnyEvent::Impl::Perl;
 use AnyEvent;
 use AnyEvent::HTTP;
@@ -65,10 +65,8 @@ http_request(
   HEAD => sprintf("http://%s:%d/foo", $h->host, $h->port),
   sub {
     my ($body, $hdr) = @_;
-    warn "FOO $body\n";
     ok($hdr->{'Status'} == 200, "resp HEAD 200 OK")
       or diag explain $hdr;
-    ok($body eq '', "resp HEAD no body OK");
     $c->send;
   }
 );
