@@ -44,7 +44,10 @@ sub new {
       AnyEvent::Handle->new (
          fh       => $self->{fh},
          on_eof   => sub { $self->do_disconnect },
-         on_error => sub { $self->do_disconnect ("Error: $!") }
+         on_error => sub { $self->do_disconnect ("Error: $!") },
+         ($self->{ssl}
+            ? (tls => "accept", tls_ctx => $self->{ssl})
+            : ()),
       );
 
    $self->push_header_line;

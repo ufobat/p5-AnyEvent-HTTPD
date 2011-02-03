@@ -76,6 +76,8 @@ in the L<AnyEvent::HTTPD> distribution for basic starting points.
 
 =item * with version 0.8 no more dependend on L<LWP> for L<HTTP::Date>.
 
+=item * (limited) support for SSL
+
 =back
 
 =head1 METHODS
@@ -107,6 +109,28 @@ default), for a public server, or 127.0.0.1 for a local server.
 
 The TCP port the HTTP server will listen on. If undefined some
 free port will be used. You can get it via the C<port> method.
+
+=item ssl => $tls_ctx
+
+If this option is given the server will listen for a SSL/TLS connection on the
+configured port. As C<$tls_ctx> you can pass anything that you can pass as
+C<tls_ctx> to an L<AnyEvent::Handle> object.
+
+Example:
+
+   my $httpd =
+      AnyEvent::HTTPD->new (
+         port => 443,
+         ssl  => { cert_file => "/path/to/my/server_cert_and_key.pem" }
+      );
+
+Or:
+
+   my $httpd =
+      AnyEvent::HTTPD->new (
+         port => 443,
+         ssl  => AnyEvent::TLS->new (...),
+      );
 
 =item request_timeout => $seconds
 

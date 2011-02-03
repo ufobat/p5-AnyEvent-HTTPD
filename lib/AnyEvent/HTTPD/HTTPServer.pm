@@ -77,6 +77,7 @@ sub accept_connection {
          fh => $fh,
          request_timeout => $self->{request_timeout},
          allowed_methods => $self->{allowed_methods},
+         ssl => $self->{ssl},
          host => $h,
          port => $p);
 

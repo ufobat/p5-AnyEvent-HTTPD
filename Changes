@@ -1,5 +1,6 @@
 Revision history for AnyEvent-HTTPD
 
+        - added simple SSL/TLS support.
 
 0.91    Wed Feb  2 15:21:02 CET 2011
         - set the Date header correctly.
