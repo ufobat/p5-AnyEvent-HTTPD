@@ -23,8 +23,6 @@ t/04_param.t
 t/05_mp_param.t
 t/06_long_resp.t
 t/07_param_semicolon.t
-t/08_options_request.t
-t/09_options_star.t
 t/10_allowed_methods.t
 t/11_denied_methods.t
 t/12_head_no_body.t
