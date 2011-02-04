@@ -9,7 +9,6 @@ use AnyEvent::Socket;
 
 use bytes ();
 use Compress::Zlib;
-use HTTP::Date     ();
 
 my $c = AnyEvent->condvar;
 my $h = AnyEvent::HTTPD->new( allowed_methods =>  [qw/GET HEAD POST OPTIONS/] );
@@ -38,7 +37,7 @@ my $req_1_headers = {
 
 my $resp_1_content = '';
 my $resp_1_headers = {
-  'Date'                         => HTTP::Date::time2str(time),
+  'Date'                         => AnyEvent::HTTPD::HTTPConnection::_time_to_http_date (),
   'Server'                       => 'AnyEvent::HTTPD ' . $AnyEvent::HTTPD::VERSION,
   'Access-Control-Allow-Origin'  => 'http://foo.example',
   'Access-Control-Allow-Methods' => 'POST, GET, OPTIONS',
@@ -73,7 +72,7 @@ my $req_2_headers = {
 my $resp_2_content =
   Compress::Zlib::memGzip('<?xml version="1.0" ?><person><your-mother>nrh</your-mother></person>');
 my $resp_2_headers = {
-  'Date'                        => HTTP::Date::time2str(time),
+  'Date'                        => AnyEvent::HTTPD::HTTPConnection::_time_to_http_date (),
   'Server'                      => 'AnyEvent::HTTPD ' . $AnyEvent::HTTPD::VERSION,
   'Access-Control-Allow-Origin' => 'http://foo.example',
   'Vary'                        => 'Accept-Encoding',

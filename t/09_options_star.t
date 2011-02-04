@@ -9,7 +9,6 @@ use AnyEvent::Socket;
 
 use bytes ();
 use Compress::Zlib;
-use HTTP::Date     ();
 use HTTP::Response ();
 
 my $c = AnyEvent->condvar;
@@ -40,7 +39,7 @@ my $req_1_headers = {
 
 my $resp_1_content = '';
 my $resp_1_headers = {
-  'Date'                         => HTTP::Date::time2str(time),
+  'Date'                         => AnyEvent::HTTPD::HTTPConnection::_time_to_http_date (),
   'Server'                       => 'AnyEvent::HTTPD ' . $AnyEvent::HTTPD::VERSION,
   'Access-Control-Allow-Origin'  => 'http://foo.example',
   'Access-Control-Allow-Methods' => 'POST, GET, OPTIONS',
