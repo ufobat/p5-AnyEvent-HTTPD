@@ -2,6 +2,7 @@ Revision history for AnyEvent-HTTPD
 
         - added simple SSL/TLS support.
         - removed from tests from the distribution.
+        - replaced 01_basic_request.t with a non-wget variant for CPAN.
 
 0.91    Wed Feb  2 15:21:02 CET 2011
         - set the Date header correctly.
