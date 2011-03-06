@@ -36,7 +36,7 @@ $h->reg_cb (
 is_deeply( $h->allowed_methods, [qw/GET HEAD OPTIONS/], 'allowed_methods()' );
 
 http_request(
-  GET => sprintf("http://%s:%d/foo", $h->host, $h->port),
+  GET => sprintf("http://%s:%d/foo", '127.0.0.1', $h->port),
   sub {
     my ($body, $hdr) = @_;
     ok($hdr->{'Status'} == 200, "resp GET 200 OK")
@@ -51,7 +51,7 @@ $c->recv;
 $c = AnyEvent->condvar;
 
 http_request(
-  POST => sprintf("http://%s:%d/foo", $h->host, $h->port),
+  POST => sprintf("http://%s:%d/foo", '127.0.0.1', $h->port),
   body => 'hello world',
   sub {
     my ($body, $hdr) = @_;
@@ -67,7 +67,7 @@ $c->recv;
 $c = AnyEvent->condvar;
 
 http_request(
-  HEAD => sprintf("http://%s:%d/foo", $h->host, $h->port),
+  HEAD => sprintf("http://%s:%d/foo", '127.0.0.1', $h->port),
   sub {
     my ($body, $hdr) = @_;
     ok($hdr->{'Status'} == 200, "resp HEAD 200 OK")
@@ -80,7 +80,7 @@ $c->recv;
 $c = AnyEvent->condvar;
 
 http_request(
-  OPTIONS => sprintf("http://%s:%d/foo", $h->host, $h->port),
+  OPTIONS => sprintf("http://%s:%d/foo", '127.0.0.1', $h->port),
   sub {
     my ($body, $hdr) = @_;
     ok($hdr->{'Status'} == 200, "resp OPTIONS OK")

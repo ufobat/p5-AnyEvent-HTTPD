@@ -1,4 +1,6 @@
 package AnyEvent::HTTPD::Util;
+use AnyEvent;
+use AnyEvent::Socket;
 use common::sense;
 
 require Exporter;
@@ -42,6 +44,32 @@ sub parse_urlencoded {
    $cont
 }
 
+sub test_connect {
+   my ($host, $port, $data) = @_;
+
+   my $c = AE::cv;
+
+   my $t; $t = AnyEvent->timer (after => 0.1, cb => sub {
+      my $hdl;
+      my $buf;
+      undef $t;
+      tcp_connect $host, $port, sub {
+         my ($fh) = @_
+            or die "couldn't connect: $!";
+
+         $hdl =
+            AnyEvent::Handle->new (
+               fh => $fh, on_eof => sub { $c->send ($buf) },
+               on_read => sub {
+                  $buf .= $hdl->rbuf;
+                  $hdl->rbuf = '';
+               });
+         $hdl->push_write ($data);
+      };
+   });
+
+   $c
+}
 
 
 =back

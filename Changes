@@ -1,5 +1,8 @@
 Revision history for AnyEvent-HTTPD
 
+        - fixed some tests. I hate it when all bugs that
+          are found via CPAN Testers are bugs in the tests.
+
 0.92    Tue Mar  1 11:46:14 CET 2011
         - added simple SSL/TLS support.
         - removed from tests from the distribution.
