@@ -1,3 +1,7 @@
+* API doesn't provide a way to drop connection using request object
+* normalize the URL, resolve /. and /..!
+  URI::canonical!?
+
 03 08:05:12 <schmorp> chunked ist trivial
 03 08:05:22 <elmex> mehr oder weniger
 03 08:05:32 <schmorp> http://ue.tst.eu/f495d10d33172f9ed33035879936dc60.txt

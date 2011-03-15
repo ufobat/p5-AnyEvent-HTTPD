@@ -194,6 +194,7 @@ sub new {
                if ($meth eq 'GET') {
                   $cont = parse_urlencoded ($url->query);
                }
+
                if ( scalar grep { $meth eq $_ } @{ $self->{allowed_methods} } ) {
 
                   weaken $con;
