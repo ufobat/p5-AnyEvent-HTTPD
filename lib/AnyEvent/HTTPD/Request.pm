@@ -33,7 +33,6 @@ sub url {
    my ($self) = @_;
    my $url = $self->{url};
    my $u = URI->new ($url);
-   $u->query (undef);
    $u
 }
 
