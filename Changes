@@ -2,6 +2,9 @@ Revision history for AnyEvent-HTTPD
 
         - fixed some tests. I hate it when all bugs that
           are found via CPAN Testers are bugs in the tests.
+        - fixed that the URL returned by Request::url method will
+          now also contain the query string (thanks to art sackett for
+          spotting this).
 
 0.92    Tue Mar  1 11:46:14 CET 2011
         - added simple SSL/TLS support.
