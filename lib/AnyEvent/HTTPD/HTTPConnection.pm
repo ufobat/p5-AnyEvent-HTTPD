@@ -408,6 +408,8 @@ sub push_header_line {
 sub do_disconnect {
    my ($self, $err) = @_;
 
+   return if $self->{disconnected};
+
    $self->{disconnected} = 1;
    $self->{transfer_cb}->() if $self->{transfer_cb};
    delete $self->{transfer_cb};
