@@ -106,6 +106,7 @@ sub _time_to_http_date
 
 sub response {
    my ($self, $code, $msg, $hdr, $content, $no_body) = @_;
+   return if $self->{disconnected};
    return unless $self->{hdl};
 
    my $res = "HTTP/1.0 $code $msg\015\012";
@@ -359,6 +360,8 @@ sub push_header {
 sub push_header_line {
    my ($self) = @_;
 
+   return if $self->{disconnected};
+
    weaken $self;
 
    $self->{req_timeout} =
@@ -405,6 +408,7 @@ sub push_header_line {
 sub do_disconnect {
    my ($self, $err) = @_;
 
+   $self->{disconnected} = 1;
    $self->{transfer_cb}->() if $self->{transfer_cb};
    delete $self->{transfer_cb};
    delete $self->{req_timeout};
