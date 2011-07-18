@@ -72,7 +72,7 @@ sub response_done {
    (delete $self->{transfer_cb})->() if $self->{transfer_cb};
 
    # sometimes a response might be written after connection is already dead:
-   return unless $self->{hdl};
+   return unless defined ($self->{hdl}) && !$self->{disconnected};
 
    $self->{hdl}->on_drain; # clear any drain handlers
 
@@ -144,7 +144,7 @@ sub response {
       my $chunk_cb = sub {
          my ($chunk) = @_;
 
-         return 0 unless defined ($self) && defined ($self->{hdl});
+         return 0 unless defined ($self) && defined ($self->{hdl}) && !$self->{disconnected};
 
          delete $self->{transport_polled};
 
