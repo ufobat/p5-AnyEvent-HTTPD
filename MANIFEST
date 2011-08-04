@@ -26,3 +26,4 @@ t/07_param_semicolon.t
 t/10_allowed_methods.t
 t/11_denied_methods.t
 t/12_head_no_body.t
+t/14_header_unset.t

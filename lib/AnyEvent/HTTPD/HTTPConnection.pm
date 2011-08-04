@@ -110,23 +110,27 @@ sub response {
    return unless $self->{hdl};
 
    my $res = "HTTP/1.0 $code $msg\015\012";
-   $hdr->{'Date'} = _time_to_http_date time
-      unless defined $hdr->{'Date'};
-   $hdr->{'Expires'} = $hdr->{'Date'}
-       unless defined $hdr->{'Expires'};
-   $hdr->{'Cache-Control'}  = "max-age=0"
-       unless defined $hdr->{'Cache-Control'};
-   $hdr->{'Connection'}     = $self->{keep_alive} ? 'Keep-Alive' : 'close';
+   header_set ($hdr, 'Date' => _time_to_http_date time)
+      unless header_exists ($hdr, 'Date');
+   header_set ($hdr, 'Expires' => header_get ($hdr, 'Date'))
+      unless header_exists ($hdr, 'Expires');
+   header_set ($hdr, 'Cache-Control' => "max-age=0")
+      unless header_exists ($hdr, 'Cache-Control');
+   header_set ($hdr, 'Connection' =>
+                    ($self->{keep_alive} ? 'Keep-Alive' : 'close'));
 
-   $hdr->{'Content-Length'} = length "$content"
-      if not (defined $hdr->{'Content-Length'}) && not ref $content;
+   header_set ($hdr, 'Content-Length' => length "$content")
+      unless header_exists ($hdr, 'Content-Length')
+             || ref $content;
 
-   unless (defined $hdr->{'Content-Length'}) {
+   unless (defined header_get ($hdr, 'Content-Length')) {
       # keep alive with no content length will NOT work.
       delete $self->{keep_alive};
+      header_set ($hdr, 'Connection' => 'close');
    }
 
    while (my ($h, $v) = each %$hdr) {
+      next unless defined $v;
       $res .= "$h: $v\015\012";
    }
 

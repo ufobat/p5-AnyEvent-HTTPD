@@ -406,8 +406,9 @@ to your server or is disconnected from it.
 Any response from the HTTP server will have C<Cache-Control> set to C<max-age=0> and
 also the C<Expires> header set to the C<Date> header. Meaning: Caching is disabled.
 
-You can of course set those headers yourself in the response, but keep in mind
-that the default for those headers are like mentioned above.
+You can of course set those headers yourself in the response, or remove them by
+setting them to undef, but keep in mind that the default for those headers are
+like mentioned above.
 
 If you need more support here you can send me a mail or even better: a patch :)
 
@@ -475,6 +476,8 @@ L<http://search.cpan.org/dist/AnyEvent-HTTPD>
    Pedro Melo       - for valuable input in general and patches.
    Nicholas Harteau - patch for ';' pair separator support,
                       patch for allowed_methods support
+   Chris Kastorff   - patch for making default headers removable
+                      and more fault tolerant w.r.t. case.
 
 =head1 COPYRIGHT & LICENSE
 

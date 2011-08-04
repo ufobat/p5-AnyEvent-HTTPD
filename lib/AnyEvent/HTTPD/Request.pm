@@ -49,6 +49,18 @@ Then the array reference has these elements:
    my ($code, $message, $header_hash, $content) =
          [200, 'ok', { 'Content-Type' => 'text/html' }, '<h1>Test</h1>' }]
 
+You can remove most headers added by default (like C<Cache-Control>,
+C<Expires>, and C<Content-Length>) by setting them to undef, like so:
+
+   $req->respond([
+      200, 'OK', {
+        'Content-Type'  => 'text/html',
+        'Cache-Control' => 'max-age=3600',
+        'Expires'       => undef,
+      },
+      'This data will be cached for one hour.'
+   ]);
+
 =item * a hash reference
 
 If it was a hash reference the hash is first searched for the C<redirect>
