@@ -416,19 +416,6 @@ If you need more support here you can send me a mail or even better: a patch :)
 
 Robin Redeker, C<< <elmex at ta-sa.org> >>
 
-=head1 ACKNOWLEDGEMENTS
-
-People who contributed to this module:
-
-=over 4
-
-=item * Mons Anderson
-
-Optimizing the regexes in L<AnyEvent::HTTPD::HTTPConnection> and adding
-the C<backlog> option to L<AnyEvent::HTTPD>.
-
-=back
-
 =head1 BUGS
 
 Please report any bugs or feature requests to C<bug-bs-httpd at rt.cpan.org>,
@@ -478,6 +465,8 @@ L<http://search.cpan.org/dist/AnyEvent-HTTPD>
                       patch for allowed_methods support
    Chris Kastorff   - patch for making default headers removable
                       and more fault tolerant w.r.t. case.
+   Mons Anderson    - Optimizing the regexes in L<AnyEvent::HTTPD::HTTPConnection>
+                      and adding the C<backlog> option to L<AnyEvent::HTTPD>.
 
 =head1 COPYRIGHT & LICENSE
 
