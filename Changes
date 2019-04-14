@@ -1,5 +1,9 @@
 Revision history for AnyEvent-HTTPD
 
+{{$NEXT}}
+
+	- fixed use statements in the tests.
+
 0.93    Thu Aug  4 10:38:09 CEST 2011
         - made it possible to remove default headers
           completely, thanks go to Chris Kastorff for providing a patch.

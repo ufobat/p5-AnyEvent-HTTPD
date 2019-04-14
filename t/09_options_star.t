@@ -3,7 +3,7 @@ use common::sense;
 use Test::More tests => 34;
 use AnyEvent::Impl::Perl;
 use AnyEvent;
-use AnyEvent::HTTP;
+use AnyEvent::HTTP qw/http_request/;
 use AnyEvent::HTTPD;
 use AnyEvent::Socket;
 

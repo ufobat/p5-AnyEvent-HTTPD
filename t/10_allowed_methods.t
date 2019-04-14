@@ -3,8 +3,8 @@ use common::sense;
 use Test::More tests => 12;
 use AnyEvent::Impl::Perl;
 use AnyEvent;
-use AnyEvent::HTTP;
-use AnyEvent::HTTPD qw/http_request/;
+use AnyEvent::HTTP qw/http_request/;
+use AnyEvent::HTTPD;
 
 my ($H, $P);
 
